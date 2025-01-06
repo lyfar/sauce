@@ -1,7 +1,7 @@
 .deco {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
@@ -10,21 +10,21 @@
     left: 50%;
     transform: translateX(-50%) translateY(var(--scroll-offset, 0));
     will-change: transform;
-    padding: 1rem;
+    padding: 2rem;
     z-index: -1;
 }
 
 .deco__item {
     position: relative;
     width: 100%;
-    max-width: 180px;
-    height: auto;
+    max-width: none;
+    height: 400px;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0.9;
     transition: opacity 0.3s;
-    min-height: 120px;
+    margin-bottom: 2rem;
 }
 
 .deco__item:hover {
@@ -58,9 +58,10 @@
     line-height: 1.8;
     font-size: 1.25rem;
     font-weight: 300;
-    text-shadow: 0 0 1px rgba(0,0,0,0.1);
+    text-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 25px rgba(255,255,255,0.6), 0 0 35px rgba(255,255,255,0.4);
     margin: 3rem 0;
     letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
 }
 
 .book-now-btn {
@@ -92,21 +93,25 @@
 
 @media screen and (max-width: 1200px) {
     .deco {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        padding: 2rem;
     }
     .deco__item {
-        max-width: 150px;
-        min-height: 100px;
+        height: 450px;
+        margin-bottom: 1rem;
     }
 }
 
 @media screen and (max-width: 800px) {
     .deco {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        padding: 2rem;
     }
     .deco__item {
-        max-width: 120px;
-        min-height: 80px;
+        height: 500px;
+        margin-bottom: 2rem;
     }
     .book-now-btn {
         bottom: 1.5rem;
@@ -130,11 +135,16 @@
 
 @media screen and (max-width: 480px) {
     .deco {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        padding: 1rem;
     }
     .deco__item {
-        max-width: 100px;
-        min-height: 70px;
+        height: 600px;
+        margin-bottom: 3rem;
+        width: 100vw;
+        margin-left: -1rem;
+        margin-right: -1rem;
     }
     .book-now-btn {
         bottom: 1rem;
