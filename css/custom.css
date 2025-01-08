@@ -188,7 +188,12 @@
     margin: 0;
     position: relative;
     z-index: 20;
-    filter: drop-shadow(0 0 5px rgba(139, 253, 254, 0.3));
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
 }
 
 .frame--header .logo-path {
@@ -197,9 +202,18 @@
     stroke-width: 2;
     stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
+    -webkit-animation: drawLogo 2s ease forwards,
+                       fillIn 1s ease forwards 2s,
+                       flicker 2s infinite alternate 3s;
     animation: drawLogo 2s ease forwards,
-               fillIn 1s ease forwards 2s,
-               flicker 2s infinite alternate 3s;
+              fillIn 1s ease forwards 2s,
+              flicker 2s infinite alternate 3s;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
 }
 
 @keyframes drawLogo {
@@ -232,7 +246,13 @@
 
 @keyframes flicker {
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
         stroke: #8BFDFE;
+        -webkit-filter: drop-shadow(0 0 2px #fff)
+                       drop-shadow(0 0 4px #fff)
+                       drop-shadow(0 0 6px #8BFDFE)
+                       drop-shadow(0 0 8px #8BFDFE)
+                       drop-shadow(0 0 10px #8BFDFE);
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
                 drop-shadow(0 0 6px #8BFDFE)
@@ -240,7 +260,32 @@
                 drop-shadow(0 0 10px #8BFDFE);
     }
     20%, 24%, 55% {
+        opacity: 0.8;
         stroke: #8BFDFE;
+        -webkit-filter: drop-shadow(0 0 2px #8BFDFE);
+        filter: drop-shadow(0 0 2px #8BFDFE);
+    }
+}
+
+@-webkit-keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+        stroke: #8BFDFE;
+        -webkit-filter: drop-shadow(0 0 2px #fff)
+                       drop-shadow(0 0 4px #fff)
+                       drop-shadow(0 0 6px #8BFDFE)
+                       drop-shadow(0 0 8px #8BFDFE)
+                       drop-shadow(0 0 10px #8BFDFE);
+        filter: drop-shadow(0 0 2px #fff)
+                drop-shadow(0 0 4px #fff)
+                drop-shadow(0 0 6px #8BFDFE)
+                drop-shadow(0 0 8px #8BFDFE)
+                drop-shadow(0 0 10px #8BFDFE);
+    }
+    20%, 24%, 55% {
+        opacity: 0.8;
+        stroke: #8BFDFE;
+        -webkit-filter: drop-shadow(0 0 2px #8BFDFE);
         filter: drop-shadow(0 0 2px #8BFDFE);
     }
 }
