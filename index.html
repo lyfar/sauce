@@ -19,15 +19,13 @@
 				<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 815.84 892.93">
 					<defs>
 						<filter id="glow">
-							<feGaussianBlur in="SourceGraphic" result="gaussian-1" stdDeviation="1" />
-							<feGaussianBlur in="SourceGraphic" result="gaussian-4" stdDeviation="4" />
-							<feGaussianBlur in="SourceGraphic" result="gaussian-10" stdDeviation="10" />
-							<feGaussianBlur in="SourceGraphic" result="gaussian-15" stdDeviation="15" />
+							<feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+							<feFlood flood-color="#8BFDFE" flood-opacity="0.8" result="color" />
+							<feComposite in="color" in2="blur" operator="in" result="glow" />
 							<feMerge>
-								<feMergeNode in="gaussian-15" />
-								<feMergeNode in="gaussian-10" />
-								<feMergeNode in="gaussian-4" />
-								<feMergeNode in="gaussian-1" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
 								<feMergeNode in="SourceGraphic" />
 							</feMerge>
 						</filter>
