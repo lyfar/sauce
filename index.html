@@ -17,6 +17,31 @@
 		<main>
 			<header class="frame frame--header">
 				<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 815.84 892.93">
+					<defs>
+						<filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+							<feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+							<feFlood flood-color="#8BFDFE" flood-opacity="0.9" result="color" />
+							<feComposite in="color" in2="blur" operator="in" result="glow" />
+							<feMerge>
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="SourceGraphic" />
+							</feMerge>
+						</filter>
+						<filter id="glowBright" x="-100%" y="-100%" width="300%" height="300%">
+							<feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+							<feFlood flood-color="#8BFDFE" flood-opacity="1" result="color" />
+							<feComposite in="color" in2="blur" operator="in" result="glow" />
+							<feMerge>
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="glow" />
+								<feMergeNode in="SourceGraphic" />
+							</feMerge>
+						</filter>
+					</defs>
 					<path class="logo-path" pathLength="1000" d="M553,193.41c-73.74,0-164.22,46.13-241,84.95,48.58-50,90.29-86.87,90.29-119.49,0-19.42-18.29-44.74-48.94-44.74-33.64,0-77.94,25.42-127.08,44.28C192.48,171.35,206,208.07,232,202c24.65-6,46.39-12.85,70.59-17.8C244.05,231.84,86.73,342.16,156,414.43c37.18,39.28,107.23,8.73,213.83-28.83-144.1,93.51-210.46,210.91-210.46,293.51,0,146.19,204.44,128.86,226.49-8.45C410.46,517.83,676.72,461.21,677.1,314.89,676.71,252.28,633.8,193.41,553,193.41Z"/>
 				</svg>
 			</header>
