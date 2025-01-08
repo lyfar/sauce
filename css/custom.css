@@ -182,17 +182,18 @@
 
 .frame--header .logo {
     max-width: none;
-    width: 60vw;
+    width: 40vw;
     height: auto;
     display: block;
     margin: 0;
     position: relative;
     z-index: 20;
+    filter: drop-shadow(0 0 5px rgba(139, 253, 254, 0.3));
 }
 
 .frame--header .logo-path {
     fill: none;
-    stroke: #ffffff;
+    stroke: #8BFDFE;
     stroke-width: 2;
     stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
@@ -204,36 +205,43 @@
 @keyframes drawLogo {
     0% {
         stroke-dashoffset: 1000;
+        stroke: #fff;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
     }
     100% {
         stroke-dashoffset: 0;
+        stroke: #fff;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
     }
 }
 
 @keyframes fillIn {
     0% {
-        stroke: #ffffff;
-        filter: none;
+        stroke: #fff;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
     }
     100% {
         stroke: #8BFDFE;
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
-                drop-shadow(0 0 6px #fff)
+                drop-shadow(0 0 6px #8BFDFE)
                 drop-shadow(0 0 8px #8BFDFE)
                 drop-shadow(0 0 10px #8BFDFE);
     }
 }
 
 @keyframes flicker {
-    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        stroke: #8BFDFE;
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
                 drop-shadow(0 0 6px #8BFDFE)
+                drop-shadow(0 0 8px #8BFDFE)
                 drop-shadow(0 0 10px #8BFDFE);
     }
     20%, 24%, 55% {
-        filter: drop-shadow(0 0 1px #fff);
+        stroke: #8BFDFE;
+        filter: drop-shadow(0 0 2px #8BFDFE);
     }
 }
 
