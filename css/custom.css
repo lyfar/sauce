@@ -190,7 +190,7 @@
     z-index: 20;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    filter: drop-shadow(0 0 5px rgba(139, 253, 254, 0.3));
+    will-change: transform;
 }
 
 .frame--header .logo-path {
@@ -199,25 +199,32 @@
     stroke-width: 2;
     stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    will-change: transform, filter;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     -webkit-animation: drawLogo 2s ease forwards,
                        fillIn 1s ease forwards 2s,
                        flicker 2s infinite alternate 3s;
     animation: drawLogo 2s ease forwards,
               fillIn 1s ease forwards 2s,
               flicker 2s infinite alternate 3s;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
 }
 
 @keyframes drawLogo {
     0% {
         stroke-dashoffset: 1000;
         stroke: #fff;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
         filter: drop-shadow(0 0 2px #fff);
     }
     100% {
         stroke-dashoffset: 0;
         stroke: #fff;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
         filter: drop-shadow(0 0 2px #fff);
     }
 }
@@ -225,12 +232,16 @@
 @keyframes fillIn {
     0% {
         stroke: #fff;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
                 drop-shadow(0 0 6px #fff);
     }
     100% {
         stroke: #8BFDFE;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
                 drop-shadow(0 0 6px #8BFDFE)
@@ -241,6 +252,8 @@
 
 @keyframes flicker {
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
         opacity: 1;
         stroke: #8BFDFE;
         filter: drop-shadow(0 0 2px #fff)
@@ -250,6 +263,8 @@
                 drop-shadow(0 0 30px #8BFDFE);
     }
     20%, 24%, 55% {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
         opacity: 0.8;
         stroke: #8BFDFE;
         filter: drop-shadow(0 0 2px #8BFDFE)
