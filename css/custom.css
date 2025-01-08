@@ -190,10 +190,7 @@
     z-index: 20;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    perspective: 1000;
+    filter: drop-shadow(0 0 5px rgba(139, 253, 254, 0.3));
 }
 
 .frame--header .logo-path {
@@ -210,37 +207,35 @@
               flicker 2s infinite alternate 3s;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    perspective: 1000;
 }
 
 @keyframes drawLogo {
     0% {
         stroke-dashoffset: 1000;
         stroke: #fff;
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+        filter: drop-shadow(0 0 2px #fff);
     }
     100% {
         stroke-dashoffset: 0;
         stroke: #fff;
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+        filter: drop-shadow(0 0 2px #fff);
     }
 }
 
 @keyframes fillIn {
     0% {
         stroke: #fff;
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+        filter: drop-shadow(0 0 2px #fff)
+                drop-shadow(0 0 4px #fff)
+                drop-shadow(0 0 6px #fff);
     }
     100% {
         stroke: #8BFDFE;
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
                 drop-shadow(0 0 6px #8BFDFE)
-                drop-shadow(0 0 8px #8BFDFE)
-                drop-shadow(0 0 10px #8BFDFE);
+                drop-shadow(0 0 15px #8BFDFE)
+                drop-shadow(0 0 30px #8BFDFE);
     }
 }
 
@@ -248,22 +243,17 @@
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
         opacity: 1;
         stroke: #8BFDFE;
-        -webkit-filter: drop-shadow(0 0 2px #fff)
-                       drop-shadow(0 0 4px #fff)
-                       drop-shadow(0 0 6px #8BFDFE)
-                       drop-shadow(0 0 8px #8BFDFE)
-                       drop-shadow(0 0 10px #8BFDFE);
         filter: drop-shadow(0 0 2px #fff)
                 drop-shadow(0 0 4px #fff)
                 drop-shadow(0 0 6px #8BFDFE)
-                drop-shadow(0 0 8px #8BFDFE)
-                drop-shadow(0 0 10px #8BFDFE);
+                drop-shadow(0 0 15px #8BFDFE)
+                drop-shadow(0 0 30px #8BFDFE);
     }
     20%, 24%, 55% {
         opacity: 0.8;
         stroke: #8BFDFE;
-        -webkit-filter: drop-shadow(0 0 2px #8BFDFE);
-        filter: drop-shadow(0 0 2px #8BFDFE);
+        filter: drop-shadow(0 0 2px #8BFDFE)
+                drop-shadow(0 0 4px #8BFDFE);
     }
 }
 
@@ -274,19 +264,14 @@
         -webkit-filter: drop-shadow(0 0 2px #fff)
                        drop-shadow(0 0 4px #fff)
                        drop-shadow(0 0 6px #8BFDFE)
-                       drop-shadow(0 0 8px #8BFDFE)
-                       drop-shadow(0 0 10px #8BFDFE);
-        filter: drop-shadow(0 0 2px #fff)
-                drop-shadow(0 0 4px #fff)
-                drop-shadow(0 0 6px #8BFDFE)
-                drop-shadow(0 0 8px #8BFDFE)
-                drop-shadow(0 0 10px #8BFDFE);
+                       drop-shadow(0 0 15px #8BFDFE)
+                       drop-shadow(0 0 30px #8BFDFE);
     }
     20%, 24%, 55% {
         opacity: 0.8;
         stroke: #8BFDFE;
-        -webkit-filter: drop-shadow(0 0 2px #8BFDFE);
-        filter: drop-shadow(0 0 2px #8BFDFE);
+        -webkit-filter: drop-shadow(0 0 2px #8BFDFE)
+                       drop-shadow(0 0 4px #8BFDFE);
     }
 }
 
