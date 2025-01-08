@@ -17,7 +17,24 @@
 		<main>
 			<header class="frame frame--header">
 				<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 815.84 892.93">
-					<path class="logo-path" pathLength="1000" d="M553,193.41c-73.74,0-164.22,46.13-241,84.95,48.58-50,90.29-86.87,90.29-119.49,0-19.42-18.29-44.74-48.94-44.74-33.64,0-77.94,25.42-127.08,44.28C192.48,171.35,206,208.07,232,202c24.65-6,46.39-12.85,70.59-17.8C244.05,231.84,86.73,342.16,156,414.43c37.18,39.28,107.23,8.73,213.83-28.83-144.1,93.51-210.46,210.91-210.46,293.51,0,146.19,204.44,128.86,226.49-8.45C410.46,517.83,676.72,461.21,677.1,314.89,676.71,252.28,633.8,193.41,553,193.41Z"/>
+					<defs>
+						<filter id="glow">
+							<feGaussianBlur in="SourceGraphic" result="gaussian-1" stdDeviation="1" />
+							<feGaussianBlur in="SourceGraphic" result="gaussian-4" stdDeviation="4" />
+							<feGaussianBlur in="SourceGraphic" result="gaussian-10" stdDeviation="10" />
+							<feGaussianBlur in="SourceGraphic" result="gaussian-15" stdDeviation="15" />
+							<feMerge>
+								<feMergeNode in="gaussian-15" />
+								<feMergeNode in="gaussian-10" />
+								<feMergeNode in="gaussian-4" />
+								<feMergeNode in="gaussian-1" />
+								<feMergeNode in="SourceGraphic" />
+							</feMerge>
+						</filter>
+					</defs>
+					<g style="filter: url(#glow);">
+						<path class="logo-path" pathLength="1000" d="M553,193.41c-73.74,0-164.22,46.13-241,84.95,48.58-50,90.29-86.87,90.29-119.49,0-19.42-18.29-44.74-48.94-44.74-33.64,0-77.94,25.42-127.08,44.28C192.48,171.35,206,208.07,232,202c24.65-6,46.39-12.85,70.59-17.8C244.05,231.84,86.73,342.16,156,414.43c37.18,39.28,107.23,8.73,213.83-28.83-144.1,93.51-210.46,210.91-210.46,293.51,0,146.19,204.44,128.86,226.49-8.45C410.46,517.83,676.72,461.21,677.1,314.89,676.71,252.28,633.8,193.41,553,193.41Z"/>
+					</g>
 				</svg>
 			</header>
 			<div class="deco">
