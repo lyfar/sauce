@@ -178,6 +178,7 @@
     z-index: 10;
     position: relative;
     background-color: #000;
+    overflow: visible;
 }
 
 .frame--header .logo {
@@ -185,12 +186,15 @@
     width: 40vw;
     height: auto;
     display: block;
-    margin: 0;
-    position: relative;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 20;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate(-50%, -50%);
     will-change: transform;
+    overflow: visible;
 }
 
 .frame--header .logo-path {
