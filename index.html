@@ -13,16 +13,17 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
 		<script>document.documentElement.className="js";</script>
 	</head>
-	<body class="loading">
+	<body>
 		<main>
 			<header class="frame frame--header">
 				<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 815.84 892.93">
 					<defs>
 						<filter id="glow">
-							<feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
-							<feFlood flood-color="#8BFDFE" flood-opacity="1" result="color" />
+							<feGaussianBlur in="SourceGraphic" stdDeviation="30" result="blur" />
+							<feFlood flood-color="#8BFDFE" flood-opacity="1.5" result="color" />
 							<feComposite in="color" in2="blur" operator="in" result="glow" />
 							<feMerge>
+								<feMergeNode in="glow" />
 								<feMergeNode in="glow" />
 								<feMergeNode in="glow" />
 								<feMergeNode in="glow" />

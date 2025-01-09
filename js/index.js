@@ -360,8 +360,11 @@ const init = () => {
 	scroll(); // Apply scroll-triggered animations to items
 };
 
-// Preload fonts and images, then initialize the animations
+// Initialize immediately
+init();
+
+// Continue loading assets in the background
 Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => {
-	document.body.classList.remove('loading'); // Remove 'loading' class from body
-	init(); // Initialize animations after preloading fonts and images
+	// Refresh any animations or layouts after assets are loaded
+	ScrollTrigger.refresh();
 });
