@@ -204,10 +204,10 @@
     will-change: transform;
     -webkit-animation: drawLogo 2s ease forwards,
                        fillIn 1s ease forwards 2s,
-                       flicker 2s infinite alternate 3s;
+                       flicker 1s infinite alternate 3s;
     animation: drawLogo 2s ease forwards,
               fillIn 1s ease forwards 2s,
-              flicker 2s infinite alternate 3s;
+              flicker 1s infinite alternate 3s;
 }
 
 @keyframes drawLogo {
@@ -234,10 +234,12 @@
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
         opacity: 1;
         stroke: #8BFDFE;
+        filter: brightness(1.2);
     }
     20%, 24%, 55% {
-        opacity: 0.5;
+        opacity: 0.7;
         stroke: #8BFDFE;
+        filter: brightness(1);
     }
 }
 
@@ -245,12 +247,12 @@
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
         opacity: 1;
         stroke: #8BFDFE;
-        -webkit-filter: url(#glowBright);
+        -webkit-filter: brightness(1.2);
     }
     20%, 24%, 55% {
-        opacity: 0.8;
+        opacity: 0.7;
         stroke: #8BFDFE;
-        -webkit-filter: url(#glow);
+        -webkit-filter: brightness(1);
     }
 }
 
