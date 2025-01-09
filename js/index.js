@@ -9,6 +9,31 @@ let lenis;
 const decoEl = document.querySelector('.deco');
 const images = [...decoEl.querySelectorAll('.deco__item')];
 
+// Function to initialize video
+const initVideo = () => {
+	const video = document.querySelector('.lifestyle-video');
+	console.log('Looking for video with class: .lifestyle-video');
+	
+	if (video) {
+		console.log('Video found, initializing...');
+		
+		// Force video to load and play
+		video.load();
+		
+		// Play video after a short delay
+		setTimeout(() => {
+			const playPromise = video.play();
+			if (playPromise !== undefined) {
+				playPromise.catch(error => {
+					console.log('Auto-play prevented:', error);
+				});
+			}
+		}, 1000);
+	} else {
+		console.log('Video element not found yet, will try again on assets load');
+	}
+};
+
 // Finding elements with 'data-text' attribute which are items in your case
 const items = [...document.querySelectorAll('[data-text]')];
 const ItemsArray = []; // Array to store items
@@ -358,6 +383,7 @@ const init = () => {
 	initSmoothScrolling(); // Initialize Lenis for smooth scrolling
 	createItems(); // Create items based on data attributes
 	scroll(); // Apply scroll-triggered animations to items
+	initVideo(); // Initialize video
 };
 
 // Initialize immediately
@@ -367,4 +393,6 @@ init();
 Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => {
 	// Refresh any animations or layouts after assets are loaded
 	ScrollTrigger.refresh();
+	// Try initializing video again after all assets are loaded
+	initVideo();
 });
