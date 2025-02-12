@@ -2,8 +2,8 @@
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     gap: 4rem;
-    width: 80%;
-    max-width: 1400px;
+    width: 100%;
+    max-width: 100vw;
     margin: 0 auto;
     position: absolute;
     top: 6rem;
@@ -17,17 +17,16 @@
 .deco__item {
     position: relative;
     width: 100%;
-    max-width: 800px;
-    aspect-ratio: 3/4;
-    background-size: cover;
+    aspect-ratio: auto;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0.9;
     transition: opacity 0.3s;
-    margin-bottom: 6rem;
+    margin-bottom: 4rem;
     transform-origin: 800% 50%;
     will-change: transform;
-    height: auto;
+    min-height: 90vh;
 }
 
 .deco__item:hover {
@@ -100,53 +99,48 @@
 @media screen and (min-width: 1600px) {
     .deco {
         grid-template-columns: repeat(2, 1fr);
-        gap: 6rem;
-        max-width: 1800px;
+        max-width: 95vw;
     }
     .deco__item {
-        max-width: 700px;
-        justify-self: center;
+        min-height: 80vh;
     }
 }
 
 @media screen and (max-width: 1200px) {
     .deco {
         grid-template-columns: repeat(1, 1fr);
-        gap: 4rem;
+        gap: 3rem;
         padding: 3rem;
-        width: 90%;
     }
     .deco__item {
-        max-width: 600px;
-        margin: 0 auto 4rem auto;
+        min-height: 70vh;
+        margin-bottom: 3rem;
     }
 }
 
 @media screen and (max-width: 800px) {
     .deco {
         grid-template-columns: repeat(1, 1fr);
-        gap: 3rem;
+        gap: 2rem;
         padding: 2rem;
         top: 4rem;
-        width: 95%;
     }
     .deco__item {
-        max-width: 500px;
-        margin: 0 auto 3rem auto;
+        min-height: 60vh;
+        margin-bottom: 2rem;
     }
 }
 
 @media screen and (max-width: 480px) {
     .deco {
         grid-template-columns: repeat(1, 1fr);
-        gap: 2rem;
+        gap: 1.5rem;
         padding: 1.5rem;
         top: 3rem;
-        width: 100%;
     }
     .deco__item {
-        max-width: 100%;
-        margin: 0 auto 2rem auto;
+        min-height: 50vh;
+        margin-bottom: 1.5rem;
     }
 }
 
@@ -332,4 +326,29 @@
         max-width: 90vw;
         margin: 1.5rem auto;
     }
+}
+
+.team-gallery {
+    width: 100%;
+    height: 40vh;
+    position: relative;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.team-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.1s linear;
+}
+
+.team-photo.active {
+    opacity: 1;
 } 

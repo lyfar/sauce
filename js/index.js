@@ -396,3 +396,21 @@ Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => 
 	// Try initializing video again after all assets are loaded
 	initVideo();
 });
+
+// Team Gallery Rotation
+function initTeamGallery() {
+	const photos = document.querySelectorAll('.team-photo');
+	let currentIndex = 0;
+
+	function rotatePhotos() {
+		photos[currentIndex].classList.remove('active');
+		currentIndex = (currentIndex + 1) % photos.length;
+		photos[currentIndex].classList.add('active');
+	}
+
+	// Start the rotation with faster interval
+	setInterval(rotatePhotos, 200); // Change photo every 0.2 seconds
+}
+
+// Initialize team gallery when the page loads
+window.addEventListener('load', initTeamGallery);
