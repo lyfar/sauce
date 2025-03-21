@@ -397,20 +397,75 @@ Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => 
 	initVideo();
 });
 
-// Team Gallery Rotation
-function initTeamGallery() {
-	const photos = document.querySelectorAll('.team-photo');
+// Team Carousel
+function initTeamCarousel() {
+	const teamMembers = document.querySelectorAll('.team-member');
+	const prevBtn = document.querySelector('.prev-btn');
+	const nextBtn = document.querySelector('.next-btn');
 	let currentIndex = 0;
+	let autoRotateTimer;
 
-	function rotatePhotos() {
-		photos[currentIndex].classList.remove('active');
-		currentIndex = (currentIndex + 1) % photos.length;
-		photos[currentIndex].classList.add('active');
+	// Function to show a specific team member
+	function showTeamMember(index) {
+		// Hide all team members
+		teamMembers.forEach(member => {
+			member.classList.remove('active');
+		});
+		
+		// Show the selected team member
+		teamMembers[index].classList.add('active');
 	}
 
-	// Start the rotation with faster interval
-	setInterval(rotatePhotos, 200); // Change photo every 0.2 seconds
+	// Function to show the next team member
+	function showNextMember() {
+		currentIndex = (currentIndex + 1) % teamMembers.length;
+		showTeamMember(currentIndex);
+	}
+
+	// Function to show the previous team member
+	function showPrevMember() {
+		currentIndex = (currentIndex - 1 + teamMembers.length) % teamMembers.length;
+		showTeamMember(currentIndex);
+	}
+
+	// Add click event listeners to the navigation buttons
+	if (prevBtn && nextBtn) {
+		prevBtn.addEventListener('click', () => {
+			showPrevMember();
+			// Reset auto-rotation timer when manually navigating
+			clearInterval(autoRotateTimer);
+			startAutoRotate();
+		});
+
+		nextBtn.addEventListener('click', () => {
+			showNextMember();
+			// Reset auto-rotation timer when manually navigating
+			clearInterval(autoRotateTimer);
+			startAutoRotate();
+		});
+	}
+
+	// Function to start auto-rotation
+	function startAutoRotate() {
+		autoRotateTimer = setInterval(showNextMember, 5000); // Change team member every 5 seconds
+	}
+
+	// Initialize carousel with first team member active
+	showTeamMember(0);
+	
+	// Start auto-rotation
+	startAutoRotate();
+
+	// Pause auto-rotation when hovering over team member
+	document.querySelector('.team-carousel').addEventListener('mouseenter', () => {
+		clearInterval(autoRotateTimer);
+	});
+
+	// Resume auto-rotation when mouse leaves
+	document.querySelector('.team-carousel').addEventListener('mouseleave', () => {
+		startAutoRotate();
+	});
 }
 
-// Initialize team gallery when the page loads
-window.addEventListener('load', initTeamGallery);
+// Initialize team carousel when the page loads
+window.addEventListener('load', initTeamCarousel);

@@ -351,4 +351,133 @@
 
 .team-photo.active {
     opacity: 1;
+}
+
+/* Add styles for the team carousel */
+.team-carousel {
+  position: relative;
+  max-width: 800px;
+  margin: 2rem auto;
+  overflow: hidden;
+  padding-bottom: 3rem;
+}
+
+.team-member {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  transition: opacity 0.5s ease;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.team-member.active {
+  display: flex;
+  opacity: 1;
+  position: relative;
+}
+
+.team-photo {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  background-size: cover;
+  background-position: center top;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.team-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+.team-info {
+  max-width: 600px;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+}
+
+.team-name {
+  font-family: var(--font-4);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00ffff;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+}
+
+.team-bio {
+  line-height: 1.6;
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.carousel-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.prev-btn, .next-btn {
+  background: transparent;
+  color: #00ffff;
+  border: 2px solid #00ffff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.prev-btn:hover, .next-btn:hover {
+  background-color: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+}
+
+@media (max-width: 768px) {
+  .team-photo {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .team-name {
+    font-size: 1.5rem;
+  }
+  
+  .team-bio {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-photo {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .team-info {
+    padding: 1rem;
+  }
 } 
