@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Test</title>
+    <style>
+        body { background: #000; color: #fff; font-family: Arial, sans-serif; text-align: center; }
+        .image-container { margin: 20px; }
+        img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 2px solid #00ffff; }
+        h2 { color: #00ffff; }
+    </style>
+</head>
+<body>
+    <h1>Image Loading Test</h1>
+    
+    <div class="image-container">
+        <h2>Chris</h2>
+        <img src="img/team/Chris.jpg" alt="Chris">
+    </div>
+    
+    <div class="image-container">
+        <h2>Philip</h2>
+        <img src="img/team/Philip.jpg" alt="Philip">
+    </div>
+    
+    <div class="image-container">
+        <h2>BOMBER</h2>
+        <img src="img/team/BOMBER.jpg" alt="BOMBER">
+    </div>
+    
+    <div class="image-container">
+        <h2>Xander</h2>
+        <img src="img/team/Xander.jpg" alt="Xander">
+    </div>
+    
+    <div class="image-container">
+        <h2>Team</h2>
+        <img src="img/team/DSC06844.jpg" alt="Team">
+    </div>
+    
+    <script>
+        // Log any image loading errors
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            img.addEventListener('error', function() {
+                console.error('Failed to load image:', this.src);
+                this.style.border = '2px solid red';
+                this.style.background = '#333';
+                this.alt = 'Failed to load: ' + this.src;
+            });
+            
+            img.addEventListener('load', function() {
+                console.log('Successfully loaded:', this.src);
+            });
+        });
+    </script>
+</body>
+</html> 

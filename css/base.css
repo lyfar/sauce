@@ -222,6 +222,14 @@ main {
 	text-transform: uppercase;
 }
 
+/* Add style to fix BARBERSHOP title during transitions */
+.size-xxl[data-text="BARBERSHOP"] {
+	position: relative;
+	z-index: 10;
+	transform: translateZ(0);
+	will-change: transform;
+}
+
 .font-1 {	
 	font-weight: 400;
 	font-family: "panel-mono", monospace;

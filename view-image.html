@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Image</title>
+    <style>
+        body { background: #000; color: #fff; padding: 20px; text-align: center; font-family: Arial; }
+        .image-container { margin: 20px auto; max-width: 500px; }
+        img { max-width: 100%; border: 2px solid cyan; }
+    </style>
+</head>
+<body>
+    <h1>Direct Image View</h1>
+    
+    <p>Testing if image loads directly:</p>
+    
+    <div class="image-container">
+        <img src="img/team/Chris.jpg" alt="Chris">
+    </div>
+    
+    <p>Can you see the image above?</p>
+    
+    <div>
+        <p>If not, let's try with absolute paths:</p>
+        <img src="/img/team/Chris.jpg" alt="Absolute path">
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    console.error('Failed to load image:', this.src);
+                    this.style.border = '2px solid red';
+                    this.style.background = '#333';
+                    this.alt = 'Failed to load: ' + this.src;
+                });
+                
+                img.addEventListener('load', function() {
+                    console.log('Successfully loaded:', this.src);
+                    this.style.border = '2px solid green';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

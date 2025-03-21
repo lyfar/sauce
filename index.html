@@ -10,6 +10,7 @@
 		<link rel="stylesheet" href="https://use.typekit.net/ejh4sem.css">
 		<link rel="stylesheet" type="text/css" href="css/base.css" />
 		<link rel="stylesheet" type="text/css" href="css/custom.css" />
+		<link rel="stylesheet" type="text/css" href="css/team-carousel.css" />
 		<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
 		<script>document.documentElement.className="js";</script>
 	</head>
@@ -84,45 +85,42 @@
 			</div>
 			<div class="content content--full">
 				<h3 class="gtext size-xxl font-5 shadow-1 spaced" data-text="BARBERSHOP" data-effect="1">BARBERSHOP</h3>
-				<div class="team-carousel">
-					<div class="team-member active">
-						<div class="team-photo" style="background-image: url('img/team/Chris.jpg')"></div>
-						<div class="team-info">
-							<h4 class="team-name">Chris White</h4>
-							<p class="team-bio">Winner of Best Modern Haircut 2024, Hong Kong Barberlympics Team. With over 9 years experience in 4 countries, beard and wet shave specialist, trained in all hair types, he can sort you out with a spicy fade or a flowing scissor cut.</p>
+				<div class="team-section">
+					<div class="team-carousel">
+						<div class="team-card active" style="background-image: url('img/team/Chris.jpg')">
+							<div class="team-card-desc">
+								<h3>Chris White</h3>
+								<p>Winner of Best Modern Haircut 2024, Hong Kong Barberlympics Team. With over 9 years experience in 4 countries, beard and wet shave specialist, trained in all hair types, he can sort you out with a spicy fade or a flowing scissor cut.</p>
+							</div>
+						</div>
+						<div class="team-card" style="background-image: url('img/team/Philip.jpg')">
+							<div class="team-card-desc">
+								<h3>Philip</h3>
+								<p>❤️‍🔥✨🐸🕺🏻🥭</p>
+							</div>
+						</div>
+						<div class="team-card" style="background-image: url('img/team/BOMBER.jpg')">
+							<div class="team-card-desc">
+								<h3>BOMBER</h3>
+								<p>Co-founder and creative director. With a vision for redefining grooming, he blends artistry and style, curating fresh looks that elevate every experience. Passionate about modern trends and classic techniques, Alexander is dedicated to crafting the ultimate in hair perfection.</p>
+							</div>
+						</div>
+						<div class="team-card" style="background-image: url('img/team/Xander.jpg')">
+							<div class="team-card-desc">
+								<h3>Xander</h3>
+								<p>They gave us red horse, they gave us Manny Pac, and they gave us Xander. This barber doesn't miss—he's a heavy hitter who does it all! With unmatched skill and style, Xander is here to elevate every client's look and vibe. Get ready for greatness!</p>
+							</div>
+						</div>
+						<div class="team-card" style="background-image: url('img/team/DSC06844.jpg')">
+							<div class="team-card-desc">
+								<h3>Team Sauce</h3>
+								<p>Our talented team is ready to elevate your style. Book your appointment today!</p>
+							</div>
 						</div>
 					</div>
-					<div class="team-member">
-						<div class="team-photo" style="background-image: url('img/team/Philip.jpg')"></div>
-						<div class="team-info">
-							<h4 class="team-name">Philip</h4>
-							<p class="team-bio">❤️‍🔥✨🐸🕺🏻🥭</p>
-						</div>
-					</div>
-					<div class="team-member">
-						<div class="team-photo" style="background-image: url('img/team/BOMBER.jpg')"></div>
-						<div class="team-info">
-							<h4 class="team-name">BOMBER</h4>
-							<p class="team-bio">Co-founder and creative director. With a vision for redefining grooming, he blends artistry and style, curating fresh looks that elevate every experience. Passionate about modern trends and classic techniques, Alexander is dedicated to crafting the ultimate in hair perfection.</p>
-						</div>
-					</div>
-					<div class="team-member">
-						<div class="team-photo" style="background-image: url('img/team/Xander.jpg')"></div>
-						<div class="team-info">
-							<h4 class="team-name">Xander</h4>
-							<p class="team-bio">They gave us red horse, they gave us Manny Pac, and they gave us Xander. This barber doesn't miss—he's a heavy hitter who does it all! With unmatched skill and style, Xander is here to elevate every client's look and vibe. Get ready for greatness!</p>
-						</div>
-					</div>
-					<div class="team-member">
-						<div class="team-photo" style="background-image: url('img/team/DSC06862.jpg')"></div>
-						<div class="team-info">
-							<h4 class="team-name">Team Sauce</h4>
-							<p class="team-bio">Our talented team is ready to elevate your style. Book your appointment today!</p>
-						</div>
-					</div>
-					<div class="carousel-nav">
-						<button class="prev-btn">&lt;</button>
-						<button class="next-btn">&gt;</button>
+					<div class="team-nav-buttons">
+						<button class="team-prev-btn">&lt;</button>
+						<button class="team-next-btn">&gt;</button>
 					</div>
 				</div>
 			</div>
@@ -163,6 +161,7 @@
 		<script src="js/gsap.min.js"></script>
 		<script src="js/ScrollTrigger.min.js"></script>
 		<script src="js/lenis.min.js"></script>
+		<script src="js/team-carousel.js"></script>
 		<script type="module" src="js/index.js"></script>
 	</body>
 </html>

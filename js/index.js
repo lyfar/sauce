@@ -384,6 +384,7 @@ const init = () => {
 	createItems(); // Create items based on data attributes
 	scroll(); // Apply scroll-triggered animations to items
 	initVideo(); // Initialize video
+	initTeamCarousel(); // Initialize team carousel
 };
 
 // Initialize immediately

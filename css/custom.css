@@ -385,11 +385,15 @@
   height: 250px;
   border-radius: 50%;
   margin-bottom: 1.5rem;
-  background-size: cover;
-  background-position: center top;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
   position: relative;
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
   transition: transform 0.3s ease;
+  display: block !important;
+  opacity: 1 !important;
+  border: 2px solid #00ffff;
 }
 
 .team-photo:hover {
