@@ -2,7 +2,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const teamCards = document.querySelectorAll('.team-card');
     const carousel = document.querySelector('.team-carousel');
-    const teamSection = document.querySelector('.team-section');
     
     if (!teamCards || !carousel || teamCards.length === 0) {
         console.warn('Team carousel elements not found');
@@ -22,10 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             event.stopPropagation();
         }
-        
-        // Get the current scroll position relative to the team section
-        const sectionRect = teamSection.getBoundingClientRect();
-        const sectionTop = window.scrollY + sectionRect.top;
         
         // Remove active class from all cards
         teamCards.forEach(card => {
@@ -50,12 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
             carousel.scrollTo({
                 left: finalScrollPosition,
                 behavior: 'smooth'
-            });
-            
-            // Keep the section in the same vertical position
-            window.scrollTo({
-                top: sectionTop,
-                behavior: 'instant'
             });
             
             // Reset transitioning flag after animation
