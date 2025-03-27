@@ -3,6 +3,9 @@
   padding: 60px 0;
   position: relative;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-x;
 }
 
 .team-carousel {
@@ -20,6 +23,7 @@
   /* Add padding for desktop view to ensure edge cards are reachable */
   padding-left: calc(50% - 450px);
   padding-right: calc(50% - 450px);
+  touch-action: pan-x;
 }
 
 .team-carousel::-webkit-scrollbar {
@@ -44,6 +48,14 @@
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   scroll-snap-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.team-card:focus {
+  outline: none;
 }
 
 .team-card.active {

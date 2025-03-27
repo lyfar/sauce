@@ -1,14 +1,31 @@
 // Team expandable card carousel functionality
 document.addEventListener('DOMContentLoaded', function() {
     const teamCards = document.querySelectorAll('.team-card');
-    const prevBtn = document.querySelector('.team-prev-btn');
-    const nextBtn = document.querySelector('.team-next-btn');
-    let activeCardIndex = 0; // Start with the first card active
+    const carousel = document.querySelector('.team-carousel');
+    const teamSection = document.querySelector('.team-section');
+    
+    if (!teamCards || !carousel || teamCards.length === 0) {
+        console.warn('Team carousel elements not found');
+        return;
+    }
+
+    let currentIndex = 0;
+    let isTransitioning = false;
     
     // Function to make a specific card active and scroll to it
-    function setActiveCard(index) {
-        // Save scroll position to prevent heading jump
-        const scrollPosition = window.scrollY;
+    function setActiveCard(index, event) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
+        // Prevent any default behavior and stop propagation
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        // Get the current scroll position relative to the team section
+        const sectionRect = teamSection.getBoundingClientRect();
+        const sectionTop = window.scrollY + sectionRect.top;
         
         // Remove active class from all cards
         teamCards.forEach(card => {
@@ -18,91 +35,80 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add active class to the selected card
         teamCards[index].classList.add('active');
         
-        // Scroll to the active card smoothly, but only horizontally
-        const carouselElement = document.querySelector('.team-carousel');
-        
         // Get card dimensions after adding the active class
-        // Small delay to ensure the active class has been applied and card dimensions updated
         setTimeout(() => {
             // Calculate center position regardless of direction
             const cardCenterOffset = teamCards[index].offsetLeft + (teamCards[index].offsetWidth / 2);
-            const carouselCenter = carouselElement.offsetWidth / 2;
+            const carouselCenter = carousel.offsetWidth / 2;
             const scrollPosition = cardCenterOffset - carouselCenter;
             
             // Calculate maximum scroll position to prevent overscroll
-            const maxScroll = carouselElement.scrollWidth - carouselElement.offsetWidth;
+            const maxScroll = carousel.scrollWidth - carousel.offsetWidth;
             const finalScrollPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
             
-            carouselElement.scrollTo({
+            // Scroll horizontally in the carousel
+            carousel.scrollTo({
                 left: finalScrollPosition,
                 behavior: 'smooth'
             });
             
-            // Restore vertical scroll position to prevent content jump
+            // Keep the section in the same vertical position
             window.scrollTo({
-                top: scrollPosition,
+                top: sectionTop,
                 behavior: 'instant'
             });
-        }, 50); // Increased delay for more reliable transition
+            
+            // Reset transitioning flag after animation
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 400); // Match this with your CSS transition duration
+        }, 50);
         
-        // Update the active index
-        activeCardIndex = index;
+        currentIndex = index;
     }
     
     // Add click event for each card
     teamCards.forEach((card, index) => {
-        card.addEventListener('click', () => {
-            setActiveCard(index);
+        // Prevent default on mousedown to avoid any jumping
+        card.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+        });
+        
+        card.addEventListener('click', (event) => {
+            setActiveCard(index, event);
         });
     });
-    
-    // Navigation button click events (keeping for functionality even though buttons are hidden)
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            let newIndex = activeCardIndex - 1;
-            if (newIndex < 0) {
-                newIndex = teamCards.length - 1; // Loop to the end
-            }
-            setActiveCard(newIndex);
-        });
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            let newIndex = activeCardIndex + 1;
-            if (newIndex >= teamCards.length) {
-                newIndex = 0; // Loop to the beginning
-            }
-            setActiveCard(newIndex);
-        });
-    }
     
     // Touch swipe functionality for mobile
     let touchStartX = 0;
     let touchEndX = 0;
     let touchStartTime = 0;
-    
-    const carousel = document.querySelector('.team-carousel');
+    let touchStartY = 0;
     
     carousel.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
         touchStartTime = Date.now();
-        stopAutoRotate();
     });
     
     carousel.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
         const touchEndTime = Date.now();
         const touchDuration = touchEndTime - touchStartTime;
         
-        // Only handle swipe if it's a quick gesture (less than 300ms)
-        if (touchDuration < 300) {
+        // Calculate vertical distance
+        const verticalDistance = Math.abs(touchEndY - touchStartY);
+        
+        // Only handle swipe if it's a quick gesture (less than 300ms) and not primarily vertical
+        if (touchDuration < 300 && verticalDistance < 50) {
             handleSwipe();
         }
-        startAutoRotate();
     });
     
     function handleSwipe() {
+        if (isTransitioning) return;
+        
         // Detect swipe direction and use threshold
         const swipeThreshold = 50;
         const swipeDistance = touchEndX - touchStartX;
@@ -111,77 +117,39 @@ document.addEventListener('DOMContentLoaded', function() {
             // Determine direction and calculate new index
             if (swipeDistance < 0) {
                 // Swiped left - go forward
-                let newIndex = activeCardIndex + 1;
-                if (newIndex >= teamCards.length) {
-                    newIndex = 0;
+                let nextIndex = currentIndex + 1;
+                if (nextIndex >= teamCards.length) {
+                    nextIndex = 0;
                 }
-                setActiveCard(newIndex);
+                setActiveCard(nextIndex);
             } else {
                 // Swiped right - go backward
-                let newIndex = activeCardIndex - 1;
-                if (newIndex < 0) {
-                    newIndex = teamCards.length - 1;
+                let prevIndex = currentIndex - 1;
+                if (prevIndex < 0) {
+                    prevIndex = teamCards.length - 1;
                 }
-                setActiveCard(newIndex);
+                setActiveCard(prevIndex);
             }
         }
     }
-    
-    // Auto-rotation functionality
-    let autoRotateTimer;
-    
-    function startAutoRotate() {
-        autoRotateTimer = setInterval(() => {
-            let newIndex = activeCardIndex + 1;
-            if (newIndex >= teamCards.length) {
-                newIndex = 0;
-            }
-            setActiveCard(newIndex);
-        }, 5000); // Change card every 5 seconds
-    }
-    
-    function stopAutoRotate() {
-        clearInterval(autoRotateTimer);
-    }
-    
-    // Start auto-rotation
-    startAutoRotate();
-    
-    // Pause auto-rotation when hovering over the carousel
-    carousel.addEventListener('mouseenter', stopAutoRotate);
-    carousel.addEventListener('mouseleave', startAutoRotate);
-    
-    // Also pause on touch for mobile devices
-    carousel.addEventListener('touchstart', stopAutoRotate);
-    carousel.addEventListener('touchend', startAutoRotate);
     
     // Make sure carousel can be navigated with keyboard
     document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft') {
-            let newIndex = activeCardIndex - 1;
-            if (newIndex < 0) {
-                newIndex = teamCards.length - 1;
+            let prevIndex = currentIndex - 1;
+            if (prevIndex < 0) {
+                prevIndex = teamCards.length - 1;
             }
-            setActiveCard(newIndex);
+            setActiveCard(prevIndex);
         } else if (e.key === 'ArrowRight') {
-            let newIndex = activeCardIndex + 1;
-            if (newIndex >= teamCards.length) {
-                newIndex = 0;
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= teamCards.length) {
+                nextIndex = 0;
             }
-            setActiveCard(newIndex);
+            setActiveCard(nextIndex);
         }
     });
     
-    // Ensure proper centering on window resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        // Debounce resize event
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            setActiveCard(activeCardIndex);
-        }, 100);
-    });
-    
-    // Initialize the first card as active
+    // Initialize with first card active
     setActiveCard(0);
 }); 

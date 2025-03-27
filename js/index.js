@@ -1,6 +1,7 @@
 // Import necessary utilities and modules
 import { preloadFonts, preloadImages } from './utils.js'; // Imported utilities
 import { Item } from './item.js'; // Imported Item module
+import './team-carousel.js'; // Import team carousel module
 
 // Variable to store the Lenis smooth scrolling object
 let lenis;
@@ -380,93 +381,23 @@ const scroll = () => {
 
 // Function to initialize animations
 const init = () => {
-	initSmoothScrolling(); // Initialize Lenis for smooth scrolling
-	createItems(); // Create items based on data attributes
-	scroll(); // Apply scroll-triggered animations to items
-	initVideo(); // Initialize video
-	initTeamCarousel(); // Initialize team carousel
+	// Preload images
+	Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => {
+		// Remove loading class
+		document.body.classList.remove('loading');
+		
+		// Initialize smooth scrolling
+		initSmoothScrolling();
+		
+		// Create items
+		createItems();
+		
+		// Initialize video
+		initVideo();
+		
+		// Initialize scroll animations
+		scroll();
+	});
 };
 
-// Initialize immediately
 init();
-
-// Continue loading assets in the background
-Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => {
-	// Refresh any animations or layouts after assets are loaded
-	ScrollTrigger.refresh();
-	// Try initializing video again after all assets are loaded
-	initVideo();
-});
-
-// Team Carousel
-function initTeamCarousel() {
-	const teamMembers = document.querySelectorAll('.team-member');
-	const prevBtn = document.querySelector('.prev-btn');
-	const nextBtn = document.querySelector('.next-btn');
-	let currentIndex = 0;
-	let autoRotateTimer;
-
-	// Function to show a specific team member
-	function showTeamMember(index) {
-		// Hide all team members
-		teamMembers.forEach(member => {
-			member.classList.remove('active');
-		});
-		
-		// Show the selected team member
-		teamMembers[index].classList.add('active');
-	}
-
-	// Function to show the next team member
-	function showNextMember() {
-		currentIndex = (currentIndex + 1) % teamMembers.length;
-		showTeamMember(currentIndex);
-	}
-
-	// Function to show the previous team member
-	function showPrevMember() {
-		currentIndex = (currentIndex - 1 + teamMembers.length) % teamMembers.length;
-		showTeamMember(currentIndex);
-	}
-
-	// Add click event listeners to the navigation buttons
-	if (prevBtn && nextBtn) {
-		prevBtn.addEventListener('click', () => {
-			showPrevMember();
-			// Reset auto-rotation timer when manually navigating
-			clearInterval(autoRotateTimer);
-			startAutoRotate();
-		});
-
-		nextBtn.addEventListener('click', () => {
-			showNextMember();
-			// Reset auto-rotation timer when manually navigating
-			clearInterval(autoRotateTimer);
-			startAutoRotate();
-		});
-	}
-
-	// Function to start auto-rotation
-	function startAutoRotate() {
-		autoRotateTimer = setInterval(showNextMember, 5000); // Change team member every 5 seconds
-	}
-
-	// Initialize carousel with first team member active
-	showTeamMember(0);
-	
-	// Start auto-rotation
-	startAutoRotate();
-
-	// Pause auto-rotation when hovering over team member
-	document.querySelector('.team-carousel').addEventListener('mouseenter', () => {
-		clearInterval(autoRotateTimer);
-	});
-
-	// Resume auto-rotation when mouse leaves
-	document.querySelector('.team-carousel').addEventListener('mouseleave', () => {
-		startAutoRotate();
-	});
-}
-
-// Initialize team carousel when the page loads
-window.addEventListener('load', initTeamCarousel);
