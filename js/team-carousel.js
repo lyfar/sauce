@@ -27,9 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Calculate center position regardless of direction
             const cardCenterOffset = teamCards[index].offsetLeft + (teamCards[index].offsetWidth / 2);
             const carouselCenter = carouselElement.offsetWidth / 2;
+            const scrollPosition = cardCenterOffset - carouselCenter;
+            
+            // Calculate maximum scroll position to prevent overscroll
+            const maxScroll = carouselElement.scrollWidth - carouselElement.offsetWidth;
+            const finalScrollPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
             
             carouselElement.scrollTo({
-                left: cardCenterOffset - carouselCenter,
+                left: finalScrollPosition,
                 behavior: 'smooth'
             });
             
@@ -38,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 top: scrollPosition,
                 behavior: 'instant'
             });
-        }, 10);
+        }, 50); // Increased delay for more reliable transition
         
         // Update the active index
         activeCardIndex = index;
@@ -75,16 +80,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Touch swipe functionality for mobile
     let touchStartX = 0;
     let touchEndX = 0;
+    let touchStartTime = 0;
     
     const carousel = document.querySelector('.team-carousel');
     
     carousel.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
+        touchStartTime = Date.now();
+        stopAutoRotate();
     });
     
     carousel.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
+        const touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
+        
+        // Only handle swipe if it's a quick gesture (less than 300ms)
+        if (touchDuration < 300) {
+            handleSwipe();
+        }
+        startAutoRotate();
     });
     
     function handleSwipe() {
@@ -158,8 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Ensure proper centering on window resize
+    let resizeTimer;
     window.addEventListener('resize', () => {
-        setActiveCard(activeCardIndex);
+        // Debounce resize event
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            setActiveCard(activeCardIndex);
+        }, 100);
     });
     
     // Initialize the first card as active

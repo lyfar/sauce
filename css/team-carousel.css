@@ -17,6 +17,9 @@
   scrollbar-width: none; /* Firefox */
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch; /* Ensures smooth scrolling on iOS */
+  /* Add padding for desktop view to ensure edge cards are reachable */
+  padding-left: calc(50% - 450px);
+  padding-right: calc(50% - 450px);
 }
 
 .team-carousel::-webkit-scrollbar {
@@ -107,6 +110,11 @@
     padding: 50px 0;
   }
   
+  .team-carousel {
+    padding-left: calc(50% - 350px);
+    padding-right: calc(50% - 350px);
+  }
+  
   .team-card {
     width: 250px;
     height: 350px;
@@ -124,7 +132,7 @@
   }
   
   .team-carousel {
-    /* Add sufficient padding to ensure first and last cards can be centered */
+    /* Reset desktop padding for mobile */
     padding: 0;
     /* Add invisible items before and after to allow centering */
     display: flex;
@@ -141,7 +149,7 @@
   
   .team-card {
     width: 220px;
-    height: 520px;
+    height: 320px;
     margin: 0 8px 20px;
   }
   
