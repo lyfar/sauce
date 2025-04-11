@@ -28,30 +28,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Add active class to the selected card
-        teamCards[index].classList.add('active');
+        const targetCard = teamCards[index];
+        targetCard.classList.add('active');
         
-        // Get card dimensions after adding the active class
+        // Scroll the active card into the center view
+        targetCard.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest'
+        });
+        
+        // Reset transitioning flag after animation
+        // We need to listen for the scroll end event if possible,
+        // but for simplicity, we use a timeout matching CSS transition.
+        // A more robust solution might involve scroll end detection.
         setTimeout(() => {
-            // Calculate center position regardless of direction
-            const cardCenterOffset = teamCards[index].offsetLeft + (teamCards[index].offsetWidth / 2);
-            const carouselCenter = carousel.offsetWidth / 2;
-            const scrollPosition = cardCenterOffset - carouselCenter;
-            
-            // Calculate maximum scroll position to prevent overscroll
-            const maxScroll = carousel.scrollWidth - carousel.offsetWidth;
-            const finalScrollPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
-            
-            // Scroll horizontally in the carousel
-            carousel.scrollTo({
-                left: finalScrollPosition,
-                behavior: 'smooth'
-            });
-            
-            // Reset transitioning flag after animation
-            setTimeout(() => {
-                isTransitioning = false;
-            }, 400); // Match this with your CSS transition duration
-        }, 50);
+            isTransitioning = false;
+        }, 450); // Slightly longer than CSS transition (0.4s)
         
         currentIndex = index;
     }

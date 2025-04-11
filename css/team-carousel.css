@@ -10,7 +10,7 @@
 
 .team-carousel {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start; /* Start alignment is better for scrollIntoView */
   flex-wrap: nowrap;
   margin: 15px 0;
   position: relative;
@@ -18,12 +18,9 @@
   overflow-x: auto;
   padding-bottom: 20px;
   scrollbar-width: none; /* Firefox */
-  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch; /* Ensures smooth scrolling on iOS */
-  /* Add padding for desktop view to ensure edge cards are reachable */
-  padding-left: calc(50% - 450px);
-  padding-right: calc(50% - 450px);
   touch-action: pan-x;
+  /* Removed scroll-snap-type and desktop padding hacks */
 }
 
 .team-carousel::-webkit-scrollbar {
@@ -47,7 +44,7 @@
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  scroll-snap-align: center;
+  /* Removed scroll-snap-align */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -144,29 +141,24 @@
   }
   
   .team-carousel {
-    /* Reset desktop padding for mobile */
-    padding: 0;
-    /* Add invisible items before and after to allow centering */
+    /* Removed mobile padding reset and pseudo-element hacks */
     display: flex;
     justify-content: flex-start;
+    /* Restore padding to allow centering edge cards with scrollIntoView */
+    padding-left: calc(50% - 140px); /* 50% viewport - half of ACTIVE card width */
+    padding-right: calc(50% - 140px); /* 50% viewport - half of ACTIVE card width */
   }
   
-  /* Add pseudo-elements for additional spacing to enable proper centering */
-  .team-carousel:before,
-  .team-carousel:after {
-    content: '';
-    width: calc(50% - 110px); /* Half viewport minus half card width */
-    flex-shrink: 0;
-  }
-  
+  /* Removed pseudo-elements for spacing */
+
   .team-card {
-    width: 1cqi;
-    height: 520px;
+    width: 120px; /* Wider inactive cards */
+    height: 420px; /* Adjusted height slightly */
     margin: 0 8px 20px;
   }
   
   .team-card.active {
-    width: 280px;
+    width: 280px; /* Keep active card width */
   }
   
   .team-card-desc {
