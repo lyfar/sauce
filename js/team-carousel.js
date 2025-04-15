@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isTransitioning = false;
     
     // Function to make a specific card active and scroll to it
-    function setActiveCard(index, event) {
+    function setActiveCard(index, event, shouldScroll = true) {
         if (isTransitioning) return;
         isTransitioning = true;
         
@@ -31,17 +31,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetCard = teamCards[index];
         targetCard.classList.add('active');
         
-        // Scroll the active card into the center view
-        targetCard.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center',
-            block: 'nearest'
-        });
+        // Only scroll if shouldScroll is true
+        if (shouldScroll) {
+            // Check if we're in Safari
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            
+            if (isSafari && window.innerWidth <= 767) {
+                // Safari mobile-specific centering
+                // Calculate container width and card position
+                const carouselWidth = carousel.offsetWidth;
+                const cardLeft = targetCard.offsetLeft;
+                const cardWidth = targetCard.offsetWidth;
+                
+                // Calculate scroll position to center the card
+                const scrollTo = cardLeft - (carouselWidth / 2) + (cardWidth / 2);
+                
+                // Manually scroll the carousel
+                carousel.scrollTo({
+                    left: scrollTo,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Use scrollIntoView for other browsers
+                targetCard.scrollIntoView({
+                    behavior: 'smooth',
+                    inline: 'center',
+                    block: 'nearest'
+                });
+            }
+        }
         
         // Reset transitioning flag after animation
-        // We need to listen for the scroll end event if possible,
-        // but for simplicity, we use a timeout matching CSS transition.
-        // A more robust solution might involve scroll end detection.
         setTimeout(() => {
             isTransitioning = false;
         }, 450); // Slightly longer than CSS transition (0.4s)
@@ -132,6 +152,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Initialize with first card active
-    setActiveCard(0);
+    // Initialize with first card active but don't scroll to it
+    setActiveCard(0, null, false);
+    
+    // For mobile, manually adjust initial scroll position to show other cards
+    if (window.innerWidth <= 767) {
+        // Set timeout to ensure the DOM has fully rendered
+        setTimeout(() => {
+            const firstCard = teamCards[0];
+            const carousel = document.querySelector('.team-carousel');
+            
+            // Calculate scroll position to show the first card and part of others
+            const cardWidth = firstCard.offsetWidth;
+            const carouselWidth = carousel.offsetWidth;
+            
+            // Scroll a bit left to reveal cards on both sides
+            const initialScroll = Math.max(0, (firstCard.offsetLeft - ((carouselWidth - cardWidth) / 2) / 2));
+            
+            // Apply the scroll
+            carousel.scrollLeft = initialScroll;
+        }, 100);
+    }
 }); 

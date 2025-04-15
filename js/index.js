@@ -3,6 +3,11 @@ import { preloadFonts, preloadImages } from './utils.js'; // Imported utilities
 import { Item } from './item.js'; // Imported Item module
 import './team-carousel.js'; // Import team carousel module
 
+// Disable browser's scroll restoration
+if ('scrollRestoration' in history) {
+	history.scrollRestoration = 'manual';
+}
+
 // Variable to store the Lenis smooth scrolling object
 let lenis;
 
@@ -66,10 +71,20 @@ const createItems = () => {
 
 // Initializes Lenis for smooth scrolling with specific properties
 const initSmoothScrolling = () => {
+	// Force scroll to top on page load
+	window.scrollTo(0, 0);
+  
 	// Instantiate the Lenis object with specified properties
 	lenis = new Lenis({
 		lerp: 0.2, // Lower values create a smoother scroll effect
-		smoothWheel: true // Enables smooth scrolling for mouse wheel events
+		smoothWheel: true, // Enables smooth scrolling for mouse wheel events
+		smoothTouch: true, // Smooth scrolling for touch devices
+		wheelMultiplier: 1, // Control wheel sensitivity
+		touchMultiplier: 1, // Control touch sensitivity
+		autoResize: true, // Auto resize on window resize
+		orientation: 'vertical', // Vertical scroll
+		scrollToTop: true, // Scroll to top on page refresh
+		resetNativeScroll: true // Reset native scroll behavior
 	});
 
 	// Update ScrollTrigger each time the user scrolls
@@ -381,6 +396,9 @@ const scroll = () => {
 
 // Function to initialize animations
 const init = () => {
+	// Force scroll to top on page load
+	window.scrollTo(0, 0);
+	
 	// Preload images
 	Promise.all([preloadImages('.deco__item'), preloadFonts('ejh4sem')]).then(() => {
 		// Remove loading class
