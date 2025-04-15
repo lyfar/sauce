@@ -18,15 +18,14 @@ document.addEventListener('DOMContentLoaded', function() {
         targetCard.classList.add('active');
         currentIndex = index;
 
-        // Center the card
-        const carouselRect = carousel.getBoundingClientRect();
-        const cardRect = targetCard.getBoundingClientRect();
-        const scrollLeft = carousel.scrollLeft;
-        const offset = (cardRect.left + cardRect.width / 2) - (carouselRect.left + carouselRect.width / 2);
-        carousel.scrollTo({
-            left: scrollLeft + offset,
-            behavior: 'smooth'
-        });
+        // Timeout ensures DOM updates before scroll
+        setTimeout(() => {
+            targetCard.scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+                block: 'nearest'
+            });
+        }, 10);
     }
 
     // Card click
