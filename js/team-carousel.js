@@ -36,35 +36,52 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if we're in Safari
             const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
             
-            if (isSafari && window.innerWidth <= 767) {
-                // Safari mobile-specific centering
-                // Calculate container width and card position
-                const carouselWidth = carousel.offsetWidth;
-                const cardLeft = targetCard.offsetLeft;
-                const cardWidth = targetCard.offsetWidth;
+            // Calculate precise scroll position with animation smoothing
+            const carouselWidth = carousel.offsetWidth;
+            const cardLeft = targetCard.offsetLeft;
+            const cardWidth = targetCard.offsetWidth;
+            
+            // Calculate scroll position to center the card perfectly
+            let scrollTo = cardLeft - (carouselWidth / 2) + (cardWidth / 2);
+            
+            // Ensure we don't scroll past edges
+            scrollTo = Math.max(0, Math.min(scrollTo, carousel.scrollWidth - carouselWidth));
+            
+            // Use RAF for smoother animation
+            let startPosition = carousel.scrollLeft;
+            let startTime = null;
+            const duration = 350; // ms, matching our CSS transition
+            
+            function animateScroll(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
                 
-                // Calculate scroll position to center the card
-                const scrollTo = cardLeft - (carouselWidth / 2) + (cardWidth / 2);
+                // Easing function: cubic-bezier approximation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
                 
-                // Manually scroll the carousel
-                carousel.scrollTo({
-                    left: scrollTo,
-                    behavior: 'smooth'
-                });
-            } else {
-                // Use scrollIntoView for other browsers
-                targetCard.scrollIntoView({
-                    behavior: 'smooth',
-                    inline: 'center',
-                    block: 'nearest'
-                });
+                // Apply scroll
+                carousel.scrollLeft = startPosition + (scrollTo - startPosition) * easeOutQuart;
+                
+                // Continue animation if not done
+                if (progress < 1) {
+                    requestAnimationFrame(animateScroll);
+                } else {
+                    // Animation complete
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 50);
+                }
             }
+            
+            // Start animation
+            requestAnimationFrame(animateScroll);
+        } else {
+            // If not scrolling, still reset transitioning flag
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 350); // Match transition time
         }
-        
-        // Reset transitioning flag after animation
-        setTimeout(() => {
-            isTransitioning = false;
-        }, 450); // Slightly longer than CSS transition (0.4s)
         
         currentIndex = index;
     }

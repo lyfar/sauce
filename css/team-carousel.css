@@ -6,6 +6,10 @@
   -webkit-user-select: none;
   user-select: none;
   touch-action: pan-x;
+  /* Add hardware acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .team-carousel {
@@ -20,6 +24,12 @@
   scrollbar-width: none; /* Firefox */
   -webkit-overflow-scrolling: touch; /* Ensures smooth scrolling on iOS */
   touch-action: pan-x;
+  /* Add hardware acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform, scroll-position;
+  /* Improve scroll behavior */
+  scroll-behavior: smooth;
   /* Removed scroll-snap-type and desktop padding hacks */
 }
 
@@ -40,7 +50,7 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  transition: all 0.4s ease-in-out;
+  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
@@ -49,6 +59,10 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: none;
+  /* Enhance transitions for smoothness */
+  will-change: width, transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .team-card:focus {

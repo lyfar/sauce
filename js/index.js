@@ -76,15 +76,17 @@ const initSmoothScrolling = () => {
   
 	// Instantiate the Lenis object with specified properties
 	lenis = new Lenis({
-		lerp: 0.2, // Lower values create a smoother scroll effect
+		lerp: 0.075, // Lower value for smoother scrolling
 		smoothWheel: true, // Enables smooth scrolling for mouse wheel events
 		smoothTouch: true, // Smooth scrolling for touch devices
-		wheelMultiplier: 1, // Control wheel sensitivity
-		touchMultiplier: 1, // Control touch sensitivity
+		wheelMultiplier: 0.8, // Slightly slower wheel scrolling for smoothness
+		touchMultiplier: 1.5, // More responsive touch scrolling
 		autoResize: true, // Auto resize on window resize
 		orientation: 'vertical', // Vertical scroll
 		scrollToTop: true, // Scroll to top on page refresh
-		resetNativeScroll: true // Reset native scroll behavior
+		gestureOrientation: 'vertical', // Vertical gestures
+		normalizeWheel: true, // Normalize wheel behavior
+		infinite: false
 	});
 
 	// Update ScrollTrigger each time the user scrolls
