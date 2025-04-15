@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentIndex = 0;
     let isTransitioning = false;
+    let carouselClickable = true; // Track if carousel is clickable
     
     // Failsafe function to check and fix any incorrectly positioned cards
     function checkCardVisibility() {
@@ -36,11 +37,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 nameElement.style.textOverflow = 'ellipsis';
             }
         });
+        
+        // Ensure carousel is clickable
+        carouselClickable = true;
+        
+        // Reset pointer events for all cards
+        teamCards.forEach(card => {
+            card.style.pointerEvents = 'auto';
+        });
     }
     
     // Function to make a specific card active and scroll to it
     function setActiveCard(index, event, shouldScroll = true) {
-        if (isTransitioning) return;
+        if (isTransitioning || !carouselClickable) return;
+        
+        // Make the carousel temporarily unclickable during transition
+        carouselClickable = false;
         isTransitioning = true;
         
         // Prevent any default behavior and stop propagation
@@ -58,6 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetCard = teamCards[index];
         targetCard.classList.add('active');
         
+        // Check if this is the last card
+        const isLastCard = index === teamCards.length - 1;
+        
         // Only scroll if shouldScroll is true
         if (shouldScroll) {
             // Calculate precise scroll position with animation smoothing
@@ -67,6 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Calculate scroll position to center the card perfectly
             let scrollTo = cardLeft - (carouselWidth / 2) + (cardWidth / 2);
+            
+            // Special handling for last card on desktop to prevent edge cases
+            if (isLastCard && window.innerWidth > 767) {
+                // Ensure there's enough space after the last card
+                scrollTo = Math.min(scrollTo, carousel.scrollWidth - carouselWidth - 20);
+            }
             
             // Ensure we don't scroll past edges
             scrollTo = Math.max(0, Math.min(scrollTo, carousel.scrollWidth - carouselWidth));
@@ -94,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Animation complete
                     setTimeout(() => {
                         isTransitioning = false;
+                        carouselClickable = true; // Re-enable clicks
                         // Run visibility check after animation completes
                         checkCardVisibility();
                     }, 50);
@@ -106,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // If not scrolling, still reset transitioning flag
             setTimeout(() => {
                 isTransitioning = false;
+                carouselClickable = true; // Re-enable clicks
                 // Run visibility check
                 checkCardVisibility();
             }, 350); // Match transition time
@@ -215,32 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize with first card active but don't scroll to it
     setActiveCard(0, null, false);
-    
-    // For mobile, manually adjust initial scroll position to show other cards
-    if (window.innerWidth <= 767) {
-        // Set timeout to ensure the DOM has fully rendered
-        setTimeout(() => {
-            const firstCard = teamCards[0];
-            const carousel = document.querySelector('.team-carousel');
-            
-            // Apply fixed position first
-            carousel.scrollLeft = 0;
-            
-            // Calculate proper position for first card
-            setTimeout(() => {
-                // Force card to be fully visible
-                const cardWidth = firstCard.offsetWidth;
-                const carouselWidth = carousel.offsetWidth;
-                
-                // Apply a slight offset to ensure card is fully visible
-                const initialScroll = Math.max(0, (firstCard.offsetLeft - 10));
-                carousel.scrollLeft = initialScroll;
-                
-                // Run visibility check
-                checkCardVisibility();
-            }, 300);
-        }, 100);
-    }
     
     // Run visibility check when page becomes visible (in case of background tabs)
     document.addEventListener('visibilitychange', function() {

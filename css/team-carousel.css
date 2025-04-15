@@ -30,6 +30,9 @@
   will-change: transform, scroll-position;
   /* Improve scroll behavior */
   scroll-behavior: smooth;
+  /* Add padding for better desktop experience */
+  padding-left: 10%;
+  padding-right: 10%;
   /* Removed scroll-snap-type and desktop padding hacks */
 }
 
