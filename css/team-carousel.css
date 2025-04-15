@@ -92,8 +92,12 @@
   z-index: 1;
   overflow: hidden;
   transform: translateY(calc(100% - 54px));
-  transition: all 0.4s ease-in-out;
+  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   width: 100%;
+  /* Ensure text content stays within bounds */
+  box-sizing: border-box;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
 }
 
 .team-card.active .team-card-desc {
@@ -106,6 +110,10 @@
   line-height: 32px;
   color: #00ffff;
   text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  /* Ensure name stays contained in collapsed card */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .team-card-desc p {
@@ -178,6 +186,8 @@
     transform: translateZ(0);
     /* Ensure cards transition smoothly */
     transition: all 0.4s ease-in-out, margin 0s;
+    /* Ensure content stays contained */
+    overflow: hidden;
   }
   
   .team-card.active {
@@ -187,18 +197,29 @@
   }
   
   .team-card-desc {
-    padding: 0 15px 10px;
+    padding: 0 12px 10px;
     transform: translateY(calc(100% - 50px));
     -webkit-transform: translateY(calc(100% - 50px));
+    /* Ensure text content stays visible */
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .team-card-desc h3 {
-    font-size: 20px;
-    line-height: 28px;
+    font-size: 18px;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 6px;
+    /* Minimum height to ensure consistent appearance */
+    min-height: 24px;
   }
   
   .team-card-desc p {
     font-size: 13px;
+    max-height: 300px;
+    overflow: hidden;
   }
 }
 

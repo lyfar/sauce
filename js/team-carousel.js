@@ -11,6 +11,33 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentIndex = 0;
     let isTransitioning = false;
     
+    // Failsafe function to check and fix any incorrectly positioned cards
+    function checkCardVisibility() {
+        // Get visible area boundaries
+        const carouselRect = carousel.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        
+        // Check each card to make sure it's properly positioned
+        teamCards.forEach((card, index) => {
+            const cardRect = card.getBoundingClientRect();
+            const nameElement = card.querySelector('h3');
+            
+            // If card is active, make sure it's visible
+            if (card.classList.contains('active')) {
+                if (cardRect.left < 0 || cardRect.right > viewportWidth) {
+                    // Card is partially offscreen, fix it
+                    setActiveCard(index, null, true);
+                    return;
+                }
+            }
+            
+            // Make sure name element is properly contained
+            if (nameElement) {
+                nameElement.style.textOverflow = 'ellipsis';
+            }
+        });
+    }
+    
     // Function to make a specific card active and scroll to it
     function setActiveCard(index, event, shouldScroll = true) {
         if (isTransitioning) return;
@@ -33,9 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Only scroll if shouldScroll is true
         if (shouldScroll) {
-            // Check if we're in Safari
-            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-            
             // Calculate precise scroll position with animation smoothing
             const carouselWidth = carousel.offsetWidth;
             const cardLeft = targetCard.offsetLeft;
@@ -70,6 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Animation complete
                     setTimeout(() => {
                         isTransitioning = false;
+                        // Run visibility check after animation completes
+                        checkCardVisibility();
                     }, 50);
                 }
             }
@@ -80,11 +106,29 @@ document.addEventListener('DOMContentLoaded', function() {
             // If not scrolling, still reset transitioning flag
             setTimeout(() => {
                 isTransitioning = false;
+                // Run visibility check
+                checkCardVisibility();
             }, 350); // Match transition time
         }
         
         currentIndex = index;
     }
+    
+    // Add scroll event listener to check visibility
+    carousel.addEventListener('scroll', function() {
+        if (!isTransitioning) {
+            // Debounce to avoid constant checks during scroll
+            clearTimeout(carousel.scrollTimer);
+            carousel.scrollTimer = setTimeout(checkCardVisibility, 150);
+        }
+    });
+    
+    // Run check on window resize
+    window.addEventListener('resize', function() {
+        // Debounce resize events
+        clearTimeout(window.resizeTimer);
+        window.resizeTimer = setTimeout(checkCardVisibility, 250);
+    });
     
     // Add click event for each card
     teamCards.forEach((card, index) => {
@@ -179,15 +223,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const firstCard = teamCards[0];
             const carousel = document.querySelector('.team-carousel');
             
-            // Calculate scroll position to show the first card and part of others
-            const cardWidth = firstCard.offsetWidth;
-            const carouselWidth = carousel.offsetWidth;
+            // Apply fixed position first
+            carousel.scrollLeft = 0;
             
-            // Scroll a bit left to reveal cards on both sides
-            const initialScroll = Math.max(0, (firstCard.offsetLeft - ((carouselWidth - cardWidth) / 2) / 2));
-            
-            // Apply the scroll
-            carousel.scrollLeft = initialScroll;
+            // Calculate proper position for first card
+            setTimeout(() => {
+                // Force card to be fully visible
+                const cardWidth = firstCard.offsetWidth;
+                const carouselWidth = carousel.offsetWidth;
+                
+                // Apply a slight offset to ensure card is fully visible
+                const initialScroll = Math.max(0, (firstCard.offsetLeft - 10));
+                carousel.scrollLeft = initialScroll;
+                
+                // Run visibility check
+                checkCardVisibility();
+            }, 300);
         }, 100);
     }
+    
+    // Run visibility check when page becomes visible (in case of background tabs)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            setTimeout(checkCardVisibility, 200);
+        }
+    });
 }); 
