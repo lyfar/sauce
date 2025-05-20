@@ -29,7 +29,8 @@
   transform: translateZ(0);
   will-change: transform, scroll-position;
   /* Improve scroll behavior */
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */ /* Removed, JS will handle smooth scroll for setActiveCard */
+  scroll-snap-type: x mandatory; /* Applied generally */
   /* Add padding for better desktop experience */
   padding-left: 10%;
   padding-right: 10%;
@@ -57,7 +58,8 @@
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  /* Removed scroll-snap-align */
+  scroll-snap-align: center; /* Applied generally */
+  scroll-snap-stop: always; /* Added for consistency */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -109,8 +111,8 @@
 
 .team-card-desc h3 {
   margin: 0 0 8px;
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 28px;
+  line-height: 36px;
   color: #00ffff;
   text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
   /* Ensure name stays contained in collapsed card */
@@ -209,14 +211,14 @@
   }
   
   .team-card-desc h3 {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 20px;
+    line-height: 28px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0 0 6px;
     /* Minimum height to ensure consistent appearance */
-    min-height: 24px;
+    min-height: 28px;
   }
   
   .team-card-desc p {
@@ -232,7 +234,7 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    scroll-snap-type: x mandatory;
+    /* scroll-snap-type: x mandatory; */ /* Already applied globally */
     -webkit-overflow-scrolling: touch;
     padding-left: 12% !important; 
     padding-right: 12% !important;
@@ -246,7 +248,7 @@
   }
   
   .team-card {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
+    /* scroll-snap-align: center; */ /* Already applied globally */
+    /* scroll-snap-stop: always; */ /* Already applied globally */
   }
 } 

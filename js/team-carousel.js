@@ -10,239 +10,224 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentIndex = 0;
     let isTransitioning = false;
-    let carouselClickable = true; // Track if carousel is clickable
+    let carouselClickable = true; 
+    let bomberCardIndex = -1;
+
+    // Find the "Bomber" card
+    teamCards.forEach((card, index) => {
+        const nameElement = card.querySelector('h3');
+        if (nameElement && nameElement.textContent.toLowerCase().includes('bomber')) {
+            bomberCardIndex = index;
+        }
+    });
+
+    // If Bomber card is not found, default to the first card
+    if (bomberCardIndex === -1 && teamCards.length > 0) {
+        console.warn('"Bomber" card not found, defaulting to first card.');
+        bomberCardIndex = 0;
+    }
     
-    // Failsafe function to check and fix any incorrectly positioned cards
-    function checkCardVisibility() {
-        // Get visible area boundaries
+    // Failsafe function to check and update active card based on visibility
+    function updateActiveCardOnScroll() {
+        if (isTransitioning) return; // Don't interfere with programmatic scroll/transitions
+
         const carouselRect = carousel.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        
-        // Check each card to make sure it's properly positioned
+        const carouselCenterX = carouselRect.left + carouselRect.width / 2;
+
+        let mostCenteredCardIndex = -1;
+        let smallestDistanceToCenter = Infinity;
+
         teamCards.forEach((card, index) => {
             const cardRect = card.getBoundingClientRect();
-            const nameElement = card.querySelector('h3');
-            
-            // If card is active, make sure it's visible
-            if (card.classList.contains('active')) {
-                if (cardRect.left < 0 || cardRect.right > viewportWidth) {
-                    // Card is partially offscreen, fix it
-                    setActiveCard(index, null, true);
-                    return;
-                }
+            const cardCenterX = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(carouselCenterX - cardCenterX);
+
+            if (distance < smallestDistanceToCenter) {
+                smallestDistanceToCenter = distance;
+                mostCenteredCardIndex = index;
             }
             
-            // Make sure name element is properly contained
+            // Ensure name element text overflow is handled
+            const nameElement = card.querySelector('h3');
             if (nameElement) {
                 nameElement.style.textOverflow = 'ellipsis';
             }
         });
-        
-        // Ensure carousel is clickable
-        carouselClickable = true;
-        
-        // Reset pointer events for all cards
-        teamCards.forEach(card => {
-            card.style.pointerEvents = 'auto';
-        });
+
+        if (mostCenteredCardIndex !== -1 && mostCenteredCardIndex !== currentIndex) {
+            // Set active without programmatic scroll, as user is driving the scroll
+            setActiveCard(mostCenteredCardIndex, null, false, true);
+        } else if (mostCenteredCardIndex !== -1 && !teamCards[mostCenteredCardIndex].classList.contains('active')) {
+            // If the current index is right, but active class is missing
+            setActiveCard(mostCenteredCardIndex, null, false, true);
+        }
     }
     
     // Function to make a specific card active and scroll to it
-    function setActiveCard(index, event, shouldScroll = true) {
-        if (isTransitioning || !carouselClickable) return;
+    function setActiveCard(index, event, shouldScroll = true, isScrollEventUpdate = false) {
+        if (!isScrollEventUpdate && (isTransitioning || !carouselClickable)) return;
         
-        // Make the carousel temporarily unclickable during transition
-        carouselClickable = false;
-        isTransitioning = true;
+        if (!isScrollEventUpdate) {
+            carouselClickable = false;
+            isTransitioning = true;
+        }
         
-        // Prevent any default behavior and stop propagation
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
         
-        // Remove active class from all cards
         teamCards.forEach(card => {
             card.classList.remove('active');
         });
         
-        // Add active class to the selected card
         const targetCard = teamCards[index];
+        if (!targetCard) {
+            console.error('Target card not found at index:', index);
+            if (!isScrollEventUpdate) {
+                isTransitioning = false;
+                carouselClickable = true;
+            }
+            return;
+        }
         targetCard.classList.add('active');
         
-        // Check if this is the last card
-        const isLastCard = index === teamCards.length - 1;
-        
-        // Only scroll if shouldScroll is true
         if (shouldScroll) {
-            // Calculate precise scroll position with animation smoothing
-            const carouselWidth = carousel.offsetWidth;
-            const cardLeft = targetCard.offsetLeft;
-            const cardWidth = targetCard.offsetWidth;
-            
-            // Calculate scroll position to center the card perfectly
-            let scrollTo = cardLeft - (carouselWidth / 2) + (cardWidth / 2);
-            
-            // Special handling for last card on desktop to prevent edge cases
-            if (isLastCard && window.innerWidth > 767) {
-                // Ensure there's enough space after the last card
-                scrollTo = Math.min(scrollTo, carousel.scrollWidth - carouselWidth - 20);
-            }
-            
-            // Ensure we don't scroll past edges
-            scrollTo = Math.max(0, Math.min(scrollTo, carousel.scrollWidth - carouselWidth));
-            
-            // Use RAF for smoother animation
-            let startPosition = carousel.scrollLeft;
-            let startTime = null;
-            const duration = 350; // ms, matching our CSS transition
-            
-            function animateScroll(timestamp) {
-                if (!startTime) startTime = timestamp;
-                const elapsed = timestamp - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                // Easing function: cubic-bezier approximation
-                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-                
-                // Apply scroll
-                carousel.scrollLeft = startPosition + (scrollTo - startPosition) * easeOutQuart;
-                
-                // Continue animation if not done
-                if (progress < 1) {
-                    requestAnimationFrame(animateScroll);
-                } else {
-                    // Animation complete
-                    setTimeout(() => {
-                        isTransitioning = false;
-                        carouselClickable = true; // Re-enable clicks
-                        // Run visibility check after animation completes
-                        checkCardVisibility();
-                    }, 50);
-                }
-            }
-            
-            // Start animation
-            requestAnimationFrame(animateScroll);
+            targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            // 'scrollend' event will handle resetting isTransitioning and carouselClickable
         } else {
-            // If not scrolling, still reset transitioning flag
-            setTimeout(() => {
-                isTransitioning = false;
-                carouselClickable = true; // Re-enable clicks
-                // Run visibility check
-                checkCardVisibility();
-            }, 350); // Match transition time
+            if (!isScrollEventUpdate) {
+                 // If not scrolling programmatically, reset flags after a delay for CSS transitions
+                setTimeout(() => {
+                    isTransitioning = false;
+                    carouselClickable = true;
+                }, 350); // Match CSS transition time
+            }
         }
         
         currentIndex = index;
     }
+
+    // Listen for scrollend to finalize state after scrolling (programmatic or user)
+    carousel.addEventListener('scrollend', () => {
+        isTransitioning = false;
+        carouselClickable = true;
+        updateActiveCardOnScroll(); // Ensure the correct card is marked active
+    });
     
-    // Add scroll event listener to check visibility
+    // Add scroll event listener to update active card based on centeredness
+    // Debounce this to avoid performance issues
+    let scrollTimer;
     carousel.addEventListener('scroll', function() {
-        if (!isTransitioning) {
-            // Debounce to avoid constant checks during scroll
-            clearTimeout(carousel.scrollTimer);
-            carousel.scrollTimer = setTimeout(checkCardVisibility, 150);
+        if (!isTransitioning) { // Only run if not programmatically scrolling
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(updateActiveCardOnScroll, 100); // Adjust delay as needed
         }
     });
     
     // Run check on window resize
+    let resizeTimer;
     window.addEventListener('resize', function() {
-        // Debounce resize events
-        clearTimeout(window.resizeTimer);
-        window.resizeTimer = setTimeout(checkCardVisibility, 250);
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (currentIndex !== -1 && teamCards[currentIndex]) {
+                 // Re-center the current active card smoothly after resize
+                setActiveCard(currentIndex, null, true);
+            } else if (bomberCardIndex !== -1) {
+                 // Fallback to bomber card if current is invalid
+                setActiveCard(bomberCardIndex, null, true);
+            }
+        }, 250);
     });
     
     // Add click event for each card
     teamCards.forEach((card, index) => {
-        // Prevent default on mousedown to avoid any jumping
         card.addEventListener('mousedown', (event) => {
-            event.preventDefault();
+            // Prevent default to avoid text selection or other issues on drag, but allow focus
+            // event.preventDefault(); 
         });
         
         card.addEventListener('click', (event) => {
-            setActiveCard(index, event);
+            if (index !== currentIndex) { // Only set active if it's not already the current one
+                setActiveCard(index, event);
+            } else if (!card.classList.contains('active')) { // If it's current but not active (e.g. after some edge case)
+                setActiveCard(index, event, false); // Re-apply active class without scroll
+            }
         });
     });
     
-    // Touch swipe functionality for mobile
+    // Touch swipe functionality for mobile (simplified due to scroll-snap)
+    // Native scroll-snap should handle most of the swipe-to-scroll behavior.
+    // We primarily need to update the active card after the user swipes.
+    // The 'scrollend' event listener and 'scroll' listener should handle this.
+    // So, explicit touch start/end for setActiveCard might not be needed or can be simplified.
+
+    // Simplified swipe detection - primarily for updating currentIndex if needed,
+    // as scroll-snap and scrollend will handle the visual state.
     let touchStartX = 0;
-    let touchEndX = 0;
-    let touchStartTime = 0;
-    let touchStartY = 0;
+    let touchStartY = 0; // For detecting vertical scroll
     
     carousel.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
-        touchStartTime = Date.now();
-    });
+        // isTransitioning = true; // Potentially set to prevent clicks during swipe scroll
+    }, { passive: true });
     
-    carousel.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        const touchEndY = e.changedTouches[0].screenY;
-        const touchEndTime = Date.now();
-        const touchDuration = touchEndTime - touchStartTime;
-        
-        // Calculate vertical distance
-        const verticalDistance = Math.abs(touchEndY - touchStartY);
-        
-        // Only handle swipe if it's a quick gesture (less than 300ms) and not primarily vertical
-        if (touchDuration < 300 && verticalDistance < 50) {
-            handleSwipe();
-        }
-    });
-    
-    function handleSwipe() {
-        if (isTransitioning) return;
-        
-        // Detect swipe direction and use threshold
-        const swipeThreshold = 50;
-        const swipeDistance = touchEndX - touchStartX;
-        
-        if (Math.abs(swipeDistance) > swipeThreshold) {
-            // Determine direction and calculate new index
-            if (swipeDistance < 0) {
-                // Swiped left - go forward
-                let nextIndex = currentIndex + 1;
-                if (nextIndex >= teamCards.length) {
-                    nextIndex = 0;
-                }
-                setActiveCard(nextIndex);
-            } else {
-                // Swiped right - go backward
-                let prevIndex = currentIndex - 1;
-                if (prevIndex < 0) {
-                    prevIndex = teamCards.length - 1;
-                }
-                setActiveCard(prevIndex);
-            }
-        }
-    }
-    
+    // 'scrollend' will primarily handle updating the active card after a swipe.
+    // The 'scroll' event with updateActiveCardOnScroll will catch intermediate states if scrollend is slow.
+
     // Make sure carousel can be navigated with keyboard
     document.addEventListener('keydown', function(e) {
+        if (e.target !== carousel && !carousel.contains(e.target) && document.activeElement !== document.body && !document.activeElement.classList.contains('team-card')) {
+            // Only respond to arrow keys if carousel or its children have focus or if body has focus
+            // This prevents interference with other page elements or global shortcuts
+           // return;
+        }
+
+        let newIndex = currentIndex;
         if (e.key === 'ArrowLeft') {
-            let prevIndex = currentIndex - 1;
-            if (prevIndex < 0) {
-                prevIndex = teamCards.length - 1;
+            newIndex = currentIndex - 1;
+            if (newIndex < 0) {
+                newIndex = teamCards.length - 1; // Loop to last
             }
-            setActiveCard(prevIndex);
+            setActiveCard(newIndex, e);
         } else if (e.key === 'ArrowRight') {
-            let nextIndex = currentIndex + 1;
-            if (nextIndex >= teamCards.length) {
-                nextIndex = 0;
+            newIndex = currentIndex + 1;
+            if (newIndex >= teamCards.length) {
+                newIndex = 0; // Loop to first
             }
-            setActiveCard(nextIndex);
+            setActiveCard(newIndex, e);
         }
     });
     
-    // Initialize with first card active but don't scroll to it
-    setActiveCard(0, null, false);
+    // Initialize with Bomber card active and centered
+    // Use a small delay to ensure layout is complete for scrollIntoView to work accurately
+    setTimeout(() => {
+        if (bomberCardIndex !== -1) {
+            setActiveCard(bomberCardIndex, null, true);
+        } else if (teamCards.length > 0) {
+            // Fallback if Bomber card wasn't found for some reason
+            setActiveCard(0, null, true);
+        }
+    }, 100); // Small delay for initial rendering
     
+    // Initial check for visibility and active card state
+    // setTimeout(updateActiveCardOnScroll, 150); // After initial scroll settles
+
     // Run visibility check when page becomes visible (in case of background tabs)
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
-            setTimeout(checkCardVisibility, 200);
+            setTimeout(() => {
+                if (currentIndex !== -1 && teamCards[currentIndex]) {
+                    setActiveCard(currentIndex, null, true); // Re-center current card
+                } else if (bomberCardIndex !== -1) {
+                    setActiveCard(bomberCardIndex, null, true); // Fallback
+                }
+            }, 200);
         }
     });
+
+    // Deprecated checkCardVisibility and original scroll logic removed.
+    // The new updateActiveCardOnScroll handles active states based on scroll position.
+    // Native scrollIntoView and CSS Scroll Snap handle the actual scrolling mechanics.
 }); 
