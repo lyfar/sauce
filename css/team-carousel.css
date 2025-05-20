@@ -14,37 +14,48 @@
 
 .team-carousel {
   display: flex;
-  justify-content: flex-start; /* Start alignment is better for scrollIntoView */
+  justify-content: flex-start; 
   flex-wrap: nowrap;
   margin: 15px 0;
   position: relative;
-  max-width: 100%;
+  /* max-width: 100%; */ /* Let .team-section control width */
+  width: 100%; /* Fill .team-section */
   overflow-x: auto;
-  padding-bottom: 20px;
-  scrollbar-width: none; /* Firefox */
-  -webkit-overflow-scrolling: touch; /* Ensures smooth scrolling on iOS */
+  padding-bottom: 20px; /* Keep for potential scrollbar spacing */
+  scrollbar-width: none; 
+  -webkit-overflow-scrolling: touch; 
   touch-action: pan-x;
-  /* Add hardware acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   will-change: transform, scroll-position;
-  /* Improve scroll behavior */
-  /* scroll-behavior: smooth; */ /* Removed, JS will handle smooth scroll for setActiveCard */
-  scroll-snap-type: x mandatory; /* Applied generally */
-  /* Add padding for better desktop experience */
-  padding-left: 10%;
-  padding-right: 10%;
-  /* Removed scroll-snap-type and desktop padding hacks */
+  scroll-snap-type: x mandatory;
+  /* REMOVE padding-left and padding-right that used vw units */
+  /* padding-left: calc(50vw - 225px - 15px); */
+  /* padding-right: calc(50vw - 225px - 15px); */
+  box-sizing: border-box; 
+  gap: 30px; /* Default gap for desktop */
 }
+
+.carousel-spacer-start,
+.carousel-spacer-end {
+  flex-shrink: 0; /* Prevent spacers from shrinking */
+  width: calc(50vw - (280px / 2) - (30px / 2)); /* Adjusted for 30px gap */
+  /* Note: This calculation should ideally use the ACTIVE card width for more accurate centering space */
+  /* However, using regular card width provides minimum space. Active card centering is by scrollIntoView */
+}
+
+/* When a card is active, the spacers might need to be smaller if active card is wider */
+/* This is tricky because spacers are fixed. scrollIntoView({inline: 'center'}) is primary for active. */
+/* The spacers primarily help the *first* and *last* non-active cards to be able to scroll to center. */
 
 .team-carousel::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge */
 }
 
 .team-card {
-  margin: 0 15px 40px;
+  margin: 0; /* Adjusted due to gap on carousel and spacers */
   width: 280px;
-  height: 400px;
+  height: 450px; /* Increased default height slightly for more text */
   display: flex;
   align-items: flex-end;
   background-color: #000;
@@ -95,30 +106,31 @@
   color: #fff;
   position: relative;
   z-index: 1;
-  overflow: hidden;
-  transform: translateY(calc(100% - 54px));
+  overflow: hidden; /* Crucial for h3 ellipsis when collapsed, and for desc itself if it grows too tall before p scrolls */
+  transform: translateY(calc(100% - 54px)); /* h3 area height */
   transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   width: 100%;
-  /* Ensure text content stays within bounds */
   box-sizing: border-box;
   word-wrap: break-word;
-  text-overflow: ellipsis;
+  /* height: 200px; */ /* REMOVED fixed height */
+  /* max-height: 70%; */ /* Optional: prevent desc from becoming excessively tall overall */
 }
 
 .team-card.active .team-card-desc {
   transform: none;
+  overflow: visible; /* Allow p's scrollbar to be visible if it's at the edge */
 }
 
 .team-card-desc h3 {
   margin: 0 0 8px;
-  font-size: 28px;
-  line-height: 36px;
+  font-size: 28px; 
+  line-height: 36px; 
   color: #00ffff;
   text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-  /* Ensure name stays contained in collapsed card */
   white-space: nowrap;
-  overflow: hidden;
+  overflow: hidden; 
   text-overflow: ellipsis;
+  height: 36px; 
 }
 
 .team-card-desc p {
@@ -128,6 +140,23 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.6;
+  /* height: calc(200px - 36px - 12px - 8px); */ /* REMOVED calculated height */
+  max-height: 150px; /* Define a max-height for the paragraph, e.g. ~7-8 lines */
+  overflow-y: auto; 
+  scrollbar-width: thin; 
+  scrollbar-color: #00ffff #00000040; 
+}
+
+.team-card-desc p::-webkit-scrollbar {
+  width: 6px;
+}
+.team-card-desc p::-webkit-scrollbar-track {
+  background: #00000040;
+  border-radius: 3px;
+}
+.team-card-desc p::-webkit-scrollbar-thumb {
+  background-color: #00ffff;
+  border-radius: 3px;
 }
 
 .team-card.active .team-card-desc p {
@@ -147,18 +176,30 @@
   }
   
   .team-carousel {
-    padding-left: calc(50% - 350px);
-    padding-right: calc(50% - 350px);
+    gap: 20px; /* Gap for tablet */
+  }
+
+  .carousel-spacer-start,
+  .carousel-spacer-end {
+    width: calc(50vw - (250px / 2) - (20px / 2)); /* Adjusted for 20px gap */
   }
   
   .team-card {
     width: 250px;
-    height: 550px;
-    margin: 0 10px 30px;
+    height: 480px; /* Adjusted height */
+    margin: 0; /* Was 0 10px 30px; spacers and gap handle spacing */
   }
   
   .team-card.active {
     width: 380px;
+  }
+
+  .team-card-desc {
+    /* height: 220px; */ /* REMOVED */
+  }
+  .team-card-desc p {
+    /* height: calc(220px - 36px - 12px - 8px); */ /* REMOVED */
+    max-height: 180px; /* Adjusted for tablet */
   }
 }
 
@@ -172,42 +213,39 @@
   .team-carousel {
     display: flex;
     justify-content: flex-start;
-    /* Reduced padding to show adjacent cards better */
-    padding-left: 12%; 
-    padding-right: 12%;
-    width: 100%;
-    overflow-x: scroll;
+    width: 100%; 
+    overflow-x: scroll; 
     -webkit-overflow-scrolling: touch;
-    /* Use gap instead of margin for more consistent spacing */
-    gap: 10px;
+    gap: 10px; /* Gap for mobile */
+    box-sizing: border-box; 
+  }
+  
+  .carousel-spacer-start,
+  .carousel-spacer-end {
+    /* Mobile: ACTIVE card width is 260px. Regular card is 110px. Gap is 10px. */
+    /* Base spacer on active card width to ensure it can be centered by scrollIntoView. */
+    width: calc(50vw - (260px / 2) - (10px / 2)); /* Uses 260px active card width */
   }
   
   .team-card {
-    width: 110px;
-    height: 400px;
-    margin: 0;
+    margin: 0; 
+    width: 110px; 
+    height: 400px; 
     flex: 0 0 auto;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
-    /* Ensure cards transition smoothly */
     transition: all 0.4s ease-in-out, margin 0s;
-    /* Ensure content stays contained */
     overflow: hidden;
   }
   
   .team-card.active {
-    width: 240px;
-    margin: 0;
-    z-index: 2;
+    width: 260px; 
   }
   
   .team-card-desc {
     padding: 0 12px 10px;
-    transform: translateY(calc(100% - 50px));
-    -webkit-transform: translateY(calc(100% - 50px));
-    /* Ensure text content stays visible */
-    width: 100%;
-    box-sizing: border-box;
+    transform: translateY(calc(100% - 50px)); /* h3 area for mobile */
+    /* height: 300px; */ /* REMOVED */
   }
   
   .team-card-desc h3 {
@@ -217,14 +255,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0 0 6px;
-    /* Minimum height to ensure consistent appearance */
-    min-height: 28px;
+    min-height: 28px; 
+    height: 28px; 
   }
   
   .team-card-desc p {
     font-size: 13px;
-    max-height: 300px;
-    overflow: hidden;
+    /* height: calc(300px - 28px - 10px - 6px); */ /* REMOVED */
+    max-height: 220px; /* Generous max-height for mobile paragraph */
+    overflow-y: auto;
   }
 }
 
@@ -234,12 +273,11 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    /* scroll-snap-type: x mandatory; */ /* Already applied globally */
-    -webkit-overflow-scrolling: touch;
-    padding-left: 12% !important; 
-    padding-right: 12% !important;
+    /* REMOVE padding-left and padding-right */
     gap: 10px;
+    box-sizing: border-box;
   }
+  /* Spacers will inherit from the media queries above */
   
   /* Remove pseudo-elements for consistent approach */
   .team-carousel::before,

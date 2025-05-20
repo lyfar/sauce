@@ -2,9 +2,10 @@
 export function initTeamCarousel() {
     const teamCards = document.querySelectorAll('.team-card');
     const carousel = document.querySelector('.team-carousel');
+    const teamSection = document.querySelector('.team-section'); // Get the parent section
     
-    if (!teamCards || !carousel || teamCards.length === 0) {
-        console.warn('Team carousel elements not found');
+    if (!teamCards || !carousel || !teamSection || teamCards.length === 0) {
+        console.warn('Team carousel or section elements not found');
         return;
     }
 
@@ -12,6 +13,7 @@ export function initTeamCarousel() {
     let isTransitioning = false;
     let carouselClickable = true; 
     let bomberCardIndex = -1;
+    let initialCenteringDone = false; // Flag to ensure centering happens only once on first intersection
 
     // Find the "Bomber" card
     teamCards.forEach((card, index) => {
@@ -29,11 +31,13 @@ export function initTeamCarousel() {
     
     // Failsafe function to check and update active card based on visibility
     function updateActiveCardOnScroll() {
-        if (isTransitioning) return; // Don't interfere with programmatic scroll/transitions
+        if (isTransitioning) {
+            // console.log("updateActiveCardOnScroll: Exiting because isTransitioning is true.");
+            return;
+        }
 
         const carouselRect = carousel.getBoundingClientRect();
         const carouselCenterX = carouselRect.left + carouselRect.width / 2;
-
         let mostCenteredCardIndex = -1;
         let smallestDistanceToCenter = Infinity;
 
@@ -41,13 +45,10 @@ export function initTeamCarousel() {
             const cardRect = card.getBoundingClientRect();
             const cardCenterX = cardRect.left + cardRect.width / 2;
             const distance = Math.abs(carouselCenterX - cardCenterX);
-
             if (distance < smallestDistanceToCenter) {
                 smallestDistanceToCenter = distance;
                 mostCenteredCardIndex = index;
             }
-            
-            // Ensure name element text overflow is handled
             const nameElement = card.querySelector('h3');
             if (nameElement) {
                 nameElement.style.textOverflow = 'ellipsis';
@@ -55,32 +56,35 @@ export function initTeamCarousel() {
         });
 
         if (mostCenteredCardIndex !== -1 && mostCenteredCardIndex !== currentIndex) {
-            // Set active without programmatic scroll, as user is driving the scroll
-            setActiveCard(mostCenteredCardIndex, null, false, true);
-        } else if (mostCenteredCardIndex !== -1 && !teamCards[mostCenteredCardIndex].classList.contains('active')) {
-            // If the current index is right, but active class is missing
-            setActiveCard(mostCenteredCardIndex, null, false, true);
+            // console.log(`updateActiveCardOnScroll: New most centered card is ${mostCenteredCardIndex}, current is ${currentIndex}. Calling setActiveCard.`);
+            setActiveCard(mostCenteredCardIndex, null, false, true, false);
+        } else if (mostCenteredCardIndex !== -1 && mostCenteredCardIndex === currentIndex && teamCards[mostCenteredCardIndex] && !teamCards[mostCenteredCardIndex].classList.contains('active')) {
+            // console.log(`updateActiveCardOnScroll: Card ${mostCenteredCardIndex} is current but not active. Re-activating without scroll.`);
+            setActiveCard(mostCenteredCardIndex, null, false, true, false);
+        } else {
+            // console.log(`updateActiveCardOnScroll: No change needed. mostCenteredCardIndex: ${mostCenteredCardIndex}, currentIndex: ${currentIndex}, active: ${teamCards[mostCenteredCardIndex] ? teamCards[mostCenteredCardIndex].classList.contains('active') : 'N/A'}`);
         }
     }
     
     // Function to make a specific card active and scroll to it
     function setActiveCard(index, event, shouldScroll = true, isScrollEventUpdate = false, isInitialSet = false) {
-        if (!isScrollEventUpdate && (isTransitioning || !carouselClickable)) return;
-        
-        if (!isScrollEventUpdate) {
+        if (!isScrollEventUpdate) { 
+            if (isTransitioning && !carouselClickable) return;
+            if (index === currentIndex && teamCards[index] && teamCards[index].classList.contains('active') && !isInitialSet) {
+                isTransitioning = false; 
+                carouselClickable = true;
+                return;
+            }
             carouselClickable = false;
             isTransitioning = true;
-        }
-        
+        } 
+
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
-        
-        teamCards.forEach(card => {
-            card.classList.remove('active');
-        });
-        
+
+        teamCards.forEach(card => card.classList.remove('active'));
         const targetCard = teamCards[index];
         if (!targetCard) {
             console.error('Target card not found at index:', index);
@@ -92,36 +96,54 @@ export function initTeamCarousel() {
         }
         targetCard.classList.add('active');
         
-        if (shouldScroll) {
-            targetCard.scrollIntoView({ behavior: isInitialSet ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
-            // 'scrollend' event will handle resetting isTransitioning and carouselClickable
-        } else {
-            if (!isScrollEventUpdate) {
-                 // If not scrolling programmatically, reset flags after a delay for CSS transitions
+        if (!isScrollEventUpdate || isInitialSet) { 
+            currentIndex = index;
+        } else { 
+            if (currentIndex !== index) currentIndex = index;
+        }
+
+        if (shouldScroll) { 
+            // Wait for next animation frame to ensure card is fully rendered
+            requestAnimationFrame(() => {
                 setTimeout(() => {
+                    targetCard.scrollIntoView({ behavior: isInitialSet ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
                     isTransitioning = false;
                     carouselClickable = true;
-                }, 350); // Match CSS transition time
+                }, 0);
+            });
+        } else { 
+            if (!isScrollEventUpdate || isInitialSet) { 
+                isTransitioning = false;
+                carouselClickable = true;
             }
         }
-        
-        currentIndex = index;
     }
 
     // Listen for scrollend to finalize state after scrolling (programmatic or user)
     carousel.addEventListener('scrollend', () => {
+        // console.log(`Scrollend event fired. Current scrollLeft: ${carousel.scrollLeft}`);
+        
+        // Delay re-enabling scroll-snap slightly
+        setTimeout(() => {
+            if (carousel && carousel.style.scrollSnapType === 'none') {
+                carousel.style.scrollSnapType = 'x mandatory';
+                // console.log("Scrollend (delayed): Snap type re-enabled.");
+            }
+        }, 50); // Small delay, e.g., 50ms. Adjust if needed.
+
         isTransitioning = false;
         carouselClickable = true;
-        updateActiveCardOnScroll(); // Ensure the correct card is marked active
+        // console.log("Scrollend: Transitioning and clickable flags reset.");
+        updateActiveCardOnScroll(); 
     });
     
     // Add scroll event listener to update active card based on centeredness
     // Debounce this to avoid performance issues
     let scrollTimer;
     carousel.addEventListener('scroll', function() {
-        if (!isTransitioning) { // Only run if not programmatically scrolling
+        if (!isTransitioning) { 
             clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(updateActiveCardOnScroll, 100); // Adjust delay as needed
+            scrollTimer = setTimeout(updateActiveCardOnScroll, 100); 
         }
     });
     
@@ -131,27 +153,21 @@ export function initTeamCarousel() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             if (currentIndex !== -1 && teamCards[currentIndex]) {
-                 // Re-center the current active card smoothly after resize
-                setActiveCard(currentIndex, null, true);
+                setActiveCard(currentIndex, null, true, false, false); // shouldScroll = true to re-center
             } else if (bomberCardIndex !== -1) {
-                 // Fallback to bomber card if current is invalid
-                setActiveCard(bomberCardIndex, null, true);
+                setActiveCard(bomberCardIndex, null, true, false, false);
             }
         }, 250);
     });
     
     // Add click event for each card
     teamCards.forEach((card, index) => {
-        card.addEventListener('mousedown', (event) => {
-            // Prevent default to avoid text selection or other issues on drag, but allow focus
-            // event.preventDefault(); 
-        });
+        card.addEventListener('mousedown', (event) => {});
         
         card.addEventListener('click', (event) => {
-            if (index !== currentIndex) { // Only set active if it's not already the current one
-                setActiveCard(index, event);
-            } else if (!card.classList.contains('active')) { // If it's current but not active (e.g. after some edge case)
-                setActiveCard(index, event, false); // Re-apply active class without scroll
+            // console.log(`Click event on card ${index}. currentIndex: ${currentIndex}, isTransitioning: ${isTransitioning}`);
+            if (index !== currentIndex || !teamCards[index].classList.contains('active')) {
+                 setActiveCard(index, event, true, false, false); // User click always implies shouldScroll=true
             }
         });
     });
@@ -170,7 +186,6 @@ export function initTeamCarousel() {
     carousel.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
-        // isTransitioning = true; // Potentially set to prevent clicks during swipe scroll
     }, { passive: true });
     
     // 'scrollend' will primarily handle updating the active card after a swipe.
@@ -190,38 +205,50 @@ export function initTeamCarousel() {
             if (newIndex < 0) {
                 newIndex = teamCards.length - 1; // Loop to last
             }
-            setActiveCard(newIndex, e);
+            setActiveCard(newIndex, e, true, false, false);
         } else if (e.key === 'ArrowRight') {
             newIndex = currentIndex + 1;
             if (newIndex >= teamCards.length) {
                 newIndex = 0; // Loop to first
             }
-            setActiveCard(newIndex, e);
+            setActiveCard(newIndex, e, true, false, false);
         }
     });
     
-    // Initialize with Bomber card active, but DO NOT scroll to it initially.
-    // The card will be styled as active, and visible when the user scrolls to the carousel.
+    // Initial setup: Set Bomber active WITHOUT page scroll
     if (bomberCardIndex !== -1) {
-        setActiveCard(bomberCardIndex, null, false, false, true); // shouldScroll is false
+        setActiveCard(bomberCardIndex, null, false, false, true); // shouldScroll = false
     } else if (teamCards.length > 0) {
-        // Fallback if Bomber card wasn't found for some reason
-        setActiveCard(0, null, false, false, true); // shouldScroll is false
+        setActiveCard(0, null, false, false, true); // shouldScroll = false
     }
-    
-    // Initial update of active card based on scroll position if needed (e.g. if already scrolled down)
-    // This helps if the page was already scrolled down (e.g. refresh)
-    // We don't want to trigger a scroll, just update state if Bomber/first card isn't centered.
-    updateActiveCardOnScroll(); 
+
+    // Intersection Observer for initial centering when carousel is visible
+    const observerCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.8 && !initialCenteringDone) {
+                if (currentIndex !== -1 && teamCards[currentIndex]) {
+                    // Wait for next animation frame to ensure card is fully rendered
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            teamCards[currentIndex].scrollIntoView({behavior: 'auto', inline: 'center', block: 'nearest'});
+                        }, 0);
+                    });
+                }
+                initialCenteringDone = true;
+            }
+        });
+    };
+    const carouselObserver = new IntersectionObserver(observerCallback, { threshold: 0.8 });
+    carouselObserver.observe(teamSection);
 
     // Run visibility check when page becomes visible (in case of background tabs)
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
             setTimeout(() => {
                 if (currentIndex !== -1 && teamCards[currentIndex]) {
-                    setActiveCard(currentIndex, null, true); // Re-center current card
+                    setActiveCard(currentIndex, null, true, false, false);
                 } else if (bomberCardIndex !== -1) {
-                    setActiveCard(bomberCardIndex, null, true); // Fallback
+                    setActiveCard(bomberCardIndex, null, true, false, false);
                 }
             }, 200);
         }
