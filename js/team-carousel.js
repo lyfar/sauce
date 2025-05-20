@@ -207,7 +207,12 @@ export function initTeamCarousel() {
                         
                         // Jump to the real card without animation
                         setTimeout(() => {
-                            realCard.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+                            // Use direct scrollLeft instead of scrollIntoView to avoid vertical scrolling
+                            const targetCardCenter = realCard.offsetLeft + realCard.offsetWidth / 2;
+                            const carouselCenter = carousel.offsetWidth / 2;
+                            let newScrollLeft = targetCardCenter - carouselCenter;
+                            newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+                            carousel.scrollLeft = newScrollLeft;
                             currentIndex = targetIndex;
                             
                             // Reset jumping flag after the jump
@@ -297,12 +302,24 @@ export function initTeamCarousel() {
                             }
                         });
                     } else {
-                        carousel.scrollLeft = newScrollLeft;
+                        // Use direct scrollLeft instead of scrollIntoView to avoid vertical scrolling
+                        const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+                        const carouselCenter = carousel.offsetWidth / 2;
+                        let newScrollLeft = targetCardCenter - carouselCenter;
+                        newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+                        
+                        if (scrollBehavior === 'smooth') {
+                            carousel.scrollTo({
+                                left: newScrollLeft,
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            carousel.scrollLeft = newScrollLeft;
+                        }
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
                             isAutoScrolling = false;
-                            updateActiveCardOnScroll();
                         }, 50); 
                     }
                 } else if (isSafari() && scrollBehavior === 'auto') { 
@@ -315,12 +332,26 @@ export function initTeamCarousel() {
                         isAutoScrolling = false;
                     }, 0);
                 } else { 
-                    targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
+                    // Use direct scrollLeft instead of scrollIntoView to avoid vertical scrolling
+                    const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+                    const carouselCenter = carousel.offsetWidth / 2;
+                    let newScrollLeft = targetCardCenter - carouselCenter;
+                    newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+                    
+                    if (scrollBehavior === 'smooth') {
+                        carousel.scrollTo({
+                            left: newScrollLeft,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        carousel.scrollLeft = newScrollLeft;
+                    }
                     if (scrollBehavior === 'auto') {
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
                             isAutoScrolling = false;
+                            updateActiveCardOnScroll();
                         }, 0);
                     } else {
                         // For smooth scrolls, scrollend event will handle flag reset
@@ -409,10 +440,16 @@ export function initTeamCarousel() {
     const observerCallback = (entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && entry.intersectionRatio > 0.8 && !initialCenteringDone) {
+                // Only center horizontally without affecting page scroll
                 if (currentIndex !== -1 && allTeamCards[currentIndex]) {
                     requestAnimationFrame(() => {
                         setTimeout(() => {
-                            allTeamCards[currentIndex].scrollIntoView({behavior: 'auto', inline: 'center', block: 'nearest'});
+                            const targetCard = allTeamCards[currentIndex];
+                            const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+                            const carouselCenter = carousel.offsetWidth / 2;
+                            let targetScrollLeft = targetCardCenter - carouselCenter;
+                            targetScrollLeft = Math.max(0, Math.min(targetScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+                            carousel.scrollLeft = targetScrollLeft;
                         }, 0);
                     });
                 }
