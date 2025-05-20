@@ -22,6 +22,7 @@ export function initTeamCarousel() {
     let initialCenteringDone = false; // Flag to ensure centering happens only once on first intersection
     let originalCardsCount = teamCards.length; // Store the original count before cloning
     let isJumpingToReal = false; // Flag to prevent scroll events during a jump to original card
+    let isAutoScrolling = false; // Flag to track if auto-scrolling is in progress
 
     // Find the "Bomber" card
     teamCards.forEach((card, index) => {
@@ -39,43 +40,32 @@ export function initTeamCarousel() {
 
     // Set up infinite scrolling by cloning cards
     function setupInfiniteScroll() {
-        // Number of cards to clone at each end
-        const cloneCount = Math.min(3, originalCardsCount);
+        // Clone all cards for a truly infinite scroll experience
+        // We'll duplicate the entire set once at each end
         
-        // Clone the first cards and append them to the end
-        for (let i = 0; i < cloneCount; i++) {
+        // Clone all cards and append at the end
+        for (let i = 0; i < originalCardsCount; i++) {
             const clone = teamCards[i].cloneNode(true);
-            clone.classList.add('clone');
+            clone.classList.add('clone', 'end-clone');
             clone.dataset.originalIndex = i.toString();
             carousel.appendChild(clone);
         }
         
-        // Clone the last cards and prepend them to the beginning
-        for (let i = 0; i < cloneCount; i++) {
-            const clone = teamCards[originalCardsCount - 1 - i].cloneNode(true);
-            clone.classList.add('clone');
-            clone.dataset.originalIndex = (originalCardsCount - 1 - i).toString();
+        // Clone all cards and prepend at the beginning
+        for (let i = originalCardsCount - 1; i >= 0; i--) {
+            const clone = teamCards[i].cloneNode(true);
+            clone.classList.add('clone', 'start-clone');
+            clone.dataset.originalIndex = i.toString();
             
-            // Find the first non-clone card or the start spacer to insert before
-            const firstCard = carousel.querySelector('.team-card:not(.clone)');
-            if (firstCard) {
-                carousel.insertBefore(clone, firstCard);
-            } else {
-                // Fallback if somehow we can't find a non-clone card
-                carousel.insertBefore(clone, carousel.firstElementChild);
-            }
+            // Insert before first child
+            carousel.insertBefore(clone, carousel.firstElementChild);
         }
         
         // Update the team cards collection after cloning
         const updatedCards = document.querySelectorAll('.team-card');
         
-        // Adjust indices for the cloned cards
+        // Adjust indices for the cloned cards and add click handlers
         updatedCards.forEach((card, idx) => {
-            if (card.classList.contains('clone')) {
-                card.dataset.cloneIndex = idx.toString();
-            }
-            
-            // Add click handler to the cloned cards
             if (!card.hasAttribute('data-click-bound')) {
                 card.setAttribute('data-click-bound', 'true');
                 card.addEventListener('click', (event) => {
@@ -86,14 +76,13 @@ export function initTeamCarousel() {
             }
         });
         
-        // Initial scroll position after cloning - center to the first real card
-        // (cloneCount cards were prepended, so the first original is at cloneCount index)
+        // Initial scroll position to center on first real card
         setTimeout(() => {
-            const firstRealCard = document.querySelectorAll('.team-card')[cloneCount];
+            const firstRealCard = document.querySelectorAll('.team-card')[originalCardsCount];
             if (firstRealCard) {
                 firstRealCard.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
             }
-        }, 100);
+        }, 10);
         
         return updatedCards;
     }
@@ -115,9 +104,54 @@ export function initTeamCarousel() {
         return Array.from(allTeamCards).indexOf(cardElement);
     }
     
+    // Get the middle section (original cards) range
+    const getMiddleSectionRange = () => {
+        return { 
+            start: originalCardsCount, 
+            end: originalCardsCount * 2 - 1 
+        };
+    };
+    
+    // Check if we need to loop the carousel and perform the loop if needed
+    function checkAndLoopCarousel() {
+        if (isJumpingToReal || isAutoScrolling) return;
+        
+        const middleSection = getMiddleSectionRange();
+        
+        // Detect if we're near the start or end boundary
+        const nearStart = carousel.scrollLeft < carousel.offsetWidth * 0.5;
+        const nearEnd = carousel.scrollLeft > (carousel.scrollWidth - carousel.offsetWidth * 1.5);
+        
+        if (nearStart || nearEnd) {
+            isJumpingToReal = true;
+            
+            // Calculate the position difference to maintain relative scroll position
+            let targetScrollLeft;
+            
+            if (nearStart) {
+                // Jump from start clones to middle section
+                targetScrollLeft = carousel.scrollLeft + (originalCardsCount * allTeamCards[0].offsetWidth);
+            } else {
+                // Jump from end clones to middle section
+                targetScrollLeft = carousel.scrollLeft - (originalCardsCount * allTeamCards[0].offsetWidth);
+            }
+            
+            // Immediate jump without animation
+            requestAnimationFrame(() => {
+                carousel.scrollLeft = targetScrollLeft;
+                
+                // Update active card after jump
+                setTimeout(() => {
+                    isJumpingToReal = false;
+                    updateActiveCardOnScroll();
+                }, 50);
+            });
+        }
+    }
+    
     // Failsafe function to check and update active card based on visibility
     function updateActiveCardOnScroll() {
-        if (isTransitioning || isJumpingToReal) {
+        if (isTransitioning || isJumpingToReal || isAutoScrolling) {
             return;
         }
 
@@ -188,6 +222,9 @@ export function initTeamCarousel() {
                 setActiveCard(mostCenteredCardIndex, null, false, true, false);
             }
         }
+        
+        // After updating the active card, check if we need to loop
+        checkAndLoopCarousel();
     }
     
     // Function to make a specific card active and scroll to it
@@ -226,6 +263,7 @@ export function initTeamCarousel() {
 
         if (shouldScroll) {
             const scrollBehavior = isInitialSet ? 'auto' : 'smooth';
+            isAutoScrolling = true;
 
             requestAnimationFrame(() => { 
                 if (isSafari() && scrollBehavior === 'smooth') {
@@ -247,6 +285,8 @@ export function initTeamCarousel() {
                             onComplete: () => {
                                 isTransitioning = false; 
                                 carouselClickable = true;
+                                isAutoScrolling = false;
+                                checkAndLoopCarousel();
                             }
                         });
                     } else {
@@ -254,6 +294,7 @@ export function initTeamCarousel() {
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
+                            isAutoScrolling = false;
                             updateActiveCardOnScroll();
                         }, 50); 
                     }
@@ -264,6 +305,7 @@ export function initTeamCarousel() {
                     setTimeout(() => { 
                         isTransitioning = false;
                         carouselClickable = true;
+                        isAutoScrolling = false;
                     }, 0);
                 } else { 
                     targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
@@ -271,7 +313,14 @@ export function initTeamCarousel() {
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
+                            isAutoScrolling = false;
                         }, 0);
+                    } else {
+                        // For smooth scrolls, scrollend event will handle flag reset
+                        // But still need to reset isAutoScrolling after a reasonable time
+                        setTimeout(() => {
+                            isAutoScrolling = false;
+                        }, 600); // Slightly longer than GSAP duration to ensure completion
                     }
                 }
             });
@@ -287,16 +336,19 @@ export function initTeamCarousel() {
     carousel.addEventListener('scrollend', () => {
         isTransitioning = false;
         carouselClickable = true;
-        updateActiveCardOnScroll(); 
+        isAutoScrolling = false;
+        updateActiveCardOnScroll();
     });
     
     // Add scroll event listener to update active card based on centeredness
     // Debounce this to avoid performance issues
     let scrollTimer;
     carousel.addEventListener('scroll', function() {
-        if (!isTransitioning && !isJumpingToReal) { 
+        if (!isTransitioning && !isJumpingToReal && !isAutoScrolling) { 
             clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(updateActiveCardOnScroll, 100); 
+            scrollTimer = setTimeout(() => {
+                updateActiveCardOnScroll();
+            }, 100); 
         }
     });
     
