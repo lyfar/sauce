@@ -1,4 +1,10 @@
 // Team expandable card carousel functionality
+
+// Helper to detect Safari
+function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent) && !window.MSStream; // MSStream check for IE11
+}
+
 export function initTeamCarousel() {
     const teamCards = document.querySelectorAll('.team-card');
     const carousel = document.querySelector('.team-carousel');
@@ -103,19 +109,63 @@ export function initTeamCarousel() {
         if (shouldScroll) {
             const scrollBehavior = isInitialSet ? 'auto' : 'smooth';
 
-            // We no longer disable scroll-snap-type here.
-            // Rely on requestAnimationFrame to ensure layout is updated before scrolling.
             requestAnimationFrame(() => { 
-                targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
+                // Safari-specific handling for smooth scroll, as scrollIntoView can be unreliable
+                if (isSafari() && scrollBehavior === 'smooth') {
+                    const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+                    const carouselCenter = carousel.offsetWidth / 2;
+                    let newScrollLeft = targetCardCenter - carouselCenter;
 
-                if (scrollBehavior === 'auto') {
-                    // For 'auto' scrolls, reset flags after a minimal delay to ensure scroll processes.
-                    setTimeout(() => {
+                    // Ensure scrollLeft is not negative or beyond max scroll
+                    newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(carousel, { 
+                            scrollLeft: newScrollLeft, 
+                            duration: 0.5, 
+                            ease: 'power1.inOut',
+                            onStart: () => {
+                                isTransitioning = true; // Ensure isTransitioning is true during GSAP animation
+                                carouselClickable = false;
+                            },
+                            onComplete: () => {
+                                // It's crucial that isTransitioning is true before scrollend potentially fires
+                                // and that it's reliably set to false here.
+                                isTransitioning = false; 
+                                carouselClickable = true;
+                                // updateActiveCardOnScroll(); // Call after GSAP scroll to ensure state
+                            }
+                        });
+                    } else {
+                        carousel.scrollLeft = newScrollLeft;
+                        // If no GSAP, rely on the native scrollend event to reset flags & update active card.
+                        // However, for manual scrollLeft changes, scrollend might not fire consistently.
+                        // For safety, and if no GSAP, consider a small timeout to reset and update.
+                        setTimeout(() => {
+                            isTransitioning = false;
+                            carouselClickable = true;
+                            updateActiveCardOnScroll();
+                        }, 50); // Adjust delay if needed, matches scrollend delay
+                    }
+                } else if (isSafari() && scrollBehavior === 'auto') { // Manual for Safari auto scroll
+                    const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+                    const carouselCenter = carousel.offsetWidth / 2;
+                    carousel.scrollLeft = Math.max(0, Math.min(targetCardCenter - carouselCenter, carousel.scrollWidth - carousel.offsetWidth));
+                    setTimeout(() => { 
                         isTransitioning = false;
                         carouselClickable = true;
                     }, 0);
+                } else { // For other browsers, or if GSAP not used for smooth on Safari
+                    targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
+                    if (scrollBehavior === 'auto') {
+                        setTimeout(() => {
+                            isTransitioning = false;
+                            carouselClickable = true;
+                        }, 0);
+                    }
                 }
-                // For 'smooth' scrolls, 'scrollend' event listener handles flag resets.
+                // For 'smooth' scrolls handled by native scrollIntoView or GSAP without onComplete,
+                // the 'scrollend' event listener is primarily responsible for flag resets.
             });
         } else {
             // Not programmatically scrolling (e.g., update from scroll event or initial set without scroll).
