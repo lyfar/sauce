@@ -65,7 +65,7 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1); /* 'all' should cover opacity */
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
@@ -76,9 +76,10 @@
   -webkit-tap-highlight-color: transparent;
   /* touch-action: none; */ /* Removed as it might interfere with clicks on Safari iOS */
   /* Enhance transitions for smoothness */
-  will-change: width, transform;
+  will-change: width, transform, opacity; /* Added opacity to will-change */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  opacity: 0.6; /* Dim non-active cards */
 }
 
 .team-card:focus {
@@ -88,6 +89,7 @@
 .team-card.active {
   width: 450px;
   box-shadow: 12px 40px 40px rgba(0, 0, 0, 0.25);
+  opacity: 1; /* Active card full opacity */
 }
 
 .team-card:after {
@@ -223,9 +225,8 @@
   .carousel-spacer-start,
   .carousel-spacer-end {
     /* Mobile: Regular card width is 110px. Active card is 260px. Gap is 10px. */
-    /* Base spacer on regular card width to ensure it can be centered by scrollIntoView when not active. */
-    /* Active card centering is primarily handled by JS scrollIntoView. */
-    width: calc(50vw - (110px / 2) - (10px / 2)); /* Uses 110px regular card width */
+    /* Base spacer on active card width to ensure it can be centered by scrollIntoView when active. */
+    width: calc(50vw - (260px / 2) - (10px / 2)); /* Uses 260px active card width */
   }
   
   .team-card {
