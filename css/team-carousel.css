@@ -222,9 +222,10 @@
   
   .carousel-spacer-start,
   .carousel-spacer-end {
-    /* Mobile: ACTIVE card width is 260px. Regular card is 110px. Gap is 10px. */
-    /* Base spacer on active card width to ensure it can be centered by scrollIntoView. */
-    width: calc(50vw - (260px / 2) - (10px / 2)); /* Uses 260px active card width */
+    /* Mobile: Regular card width is 110px. Active card is 260px. Gap is 10px. */
+    /* Base spacer on regular card width to ensure it can be centered by scrollIntoView when not active. */
+    /* Active card centering is primarily handled by JS scrollIntoView. */
+    width: calc(50vw - (110px / 2) - (10px / 2)); /* Uses 110px regular card width */
   }
   
   .team-card {
