@@ -1,7 +1,7 @@
 // Import necessary utilities and modules
 import { preloadFonts, preloadImages } from './utils.js'; // Imported utilities
 import { Item } from './item.js'; // Imported Item module
-import './team-carousel.js'; // Import team carousel module
+import { initTeamCarousel } from './team-carousel.js'; // New: Import the function
 
 // Disable browser's scroll restoration
 if ('scrollRestoration' in history) {
@@ -406,8 +406,8 @@ const init = () => {
 		// Remove loading class
 		document.body.classList.remove('loading');
 		
-		// Initialize smooth scrolling
-		initSmoothScrolling();
+		// Initialize smooth scrolling (Lenis)
+		initSmoothScrolling(); // Lenis also does a scrollTo(0,0) internally initially
 		
 		// Create items
 		createItems();
@@ -417,6 +417,9 @@ const init = () => {
 		
 		// Initialize scroll animations
 		scroll();
+
+		// Initialize the team carousel AFTER Lenis and preloading
+		initTeamCarousel();
 	});
 };
 

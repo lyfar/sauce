@@ -1,5 +1,5 @@
 // Team expandable card carousel functionality
-document.addEventListener('DOMContentLoaded', function() {
+export function initTeamCarousel() {
     const teamCards = document.querySelectorAll('.team-card');
     const carousel = document.querySelector('.team-carousel');
     
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to make a specific card active and scroll to it
-    function setActiveCard(index, event, shouldScroll = true, isScrollEventUpdate = false) {
+    function setActiveCard(index, event, shouldScroll = true, isScrollEventUpdate = false, isInitialSet = false) {
         if (!isScrollEventUpdate && (isTransitioning || !carouselClickable)) return;
         
         if (!isScrollEventUpdate) {
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         targetCard.classList.add('active');
         
         if (shouldScroll) {
-            targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            targetCard.scrollIntoView({ behavior: isInitialSet ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
             // 'scrollend' event will handle resetting isTransitioning and carouselClickable
         } else {
             if (!isScrollEventUpdate) {
@@ -201,15 +201,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initialize with Bomber card active and centered
-    // Use a small delay to ensure layout is complete for scrollIntoView to work accurately
-    setTimeout(() => {
-        if (bomberCardIndex !== -1) {
-            setActiveCard(bomberCardIndex, null, true);
-        } else if (teamCards.length > 0) {
-            // Fallback if Bomber card wasn't found for some reason
-            setActiveCard(0, null, true);
-        }
-    }, 100); // Small delay for initial rendering
+    // This is now called after preloading and Lenis init from index.js
+    // setTimeout(() => { // setTimeout no longer needed here as timing is handled by index.js
+    if (bomberCardIndex !== -1) {
+        setActiveCard(bomberCardIndex, null, true, false, true); // Add isInitialSet = true
+    } else if (teamCards.length > 0) {
+        // Fallback if Bomber card wasn't found for some reason
+        setActiveCard(0, null, true, false, true); // Add isInitialSet = true
+    }
+    // }, 100); 
     
     // Initial check for visibility and active card state
     // setTimeout(updateActiveCardOnScroll, 150); // After initial scroll settles
@@ -230,4 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Deprecated checkCardVisibility and original scroll logic removed.
     // The new updateActiveCardOnScroll handles active states based on scroll position.
     // Native scrollIntoView and CSS Scroll Snap handle the actual scrolling mechanics.
-}); 
+}
+
+// If Lenis is not managing the page scroll, or for fallback, we might still want to run this
+// if team-carousel.js is loaded standalone. However, for this project, it's controlled by index.js.
+// document.addEventListener('DOMContentLoaded', initTeamCarousel); 
