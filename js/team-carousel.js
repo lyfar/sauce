@@ -200,19 +200,19 @@ export function initTeamCarousel() {
         }
     });
     
-    // Initialize with Bomber card active and centered
-    // This is now called after preloading and Lenis init from index.js
-    // setTimeout(() => { // setTimeout no longer needed here as timing is handled by index.js
+    // Initialize with Bomber card active, but DO NOT scroll to it initially.
+    // The card will be styled as active, and visible when the user scrolls to the carousel.
     if (bomberCardIndex !== -1) {
-        setActiveCard(bomberCardIndex, null, true, false, true); // Add isInitialSet = true
+        setActiveCard(bomberCardIndex, null, false, false, true); // shouldScroll is false
     } else if (teamCards.length > 0) {
         // Fallback if Bomber card wasn't found for some reason
-        setActiveCard(0, null, true, false, true); // Add isInitialSet = true
+        setActiveCard(0, null, false, false, true); // shouldScroll is false
     }
-    // }, 100); 
     
-    // Initial check for visibility and active card state
-    // setTimeout(updateActiveCardOnScroll, 150); // After initial scroll settles
+    // Initial update of active card based on scroll position if needed (e.g. if already scrolled down)
+    // This helps if the page was already scrolled down (e.g. refresh)
+    // We don't want to trigger a scroll, just update state if Bomber/first card isn't centered.
+    updateActiveCardOnScroll(); 
 
     // Run visibility check when page becomes visible (in case of background tabs)
     document.addEventListener('visibilitychange', function() {
