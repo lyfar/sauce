@@ -76,11 +76,18 @@ export function initTeamCarousel() {
             }
         });
         
-        // Initial scroll position to center on first real card
+        // Instead of using scrollIntoView (which could trigger a vertical page scroll),
+        // directly set the carousel's horizontal scroll position so that the first real
+        // card is centered. This prevents the page from jumping down to the carousel
+        // section on initial load.
         setTimeout(() => {
             const firstRealCard = document.querySelectorAll('.team-card')[originalCardsCount];
             if (firstRealCard) {
-                firstRealCard.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+                const cardCenter = firstRealCard.offsetLeft + firstRealCard.offsetWidth / 2;
+                const carouselCenter = carousel.offsetWidth / 2;
+                let targetScrollLeft = cardCenter - carouselCenter;
+                targetScrollLeft = Math.max(0, Math.min(targetScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+                carousel.scrollLeft = targetScrollLeft;
             }
         }, 10);
         
