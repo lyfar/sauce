@@ -116,8 +116,11 @@ export function initTeamCarousel() {
                     const carouselCenter = carousel.offsetWidth / 2;
                     let newScrollLeft = targetCardCenter - carouselCenter;
 
-                    // Ensure scrollLeft is not negative or beyond max scroll
                     newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+
+                    // Temporarily disable scroll-snap for GSAP animation on Safari
+                    const originalSnapType = carousel.style.scrollSnapType;
+                    carousel.style.scrollSnapType = 'none';
 
                     if (typeof gsap !== 'undefined') {
                         gsap.to(carousel, { 
@@ -125,27 +128,24 @@ export function initTeamCarousel() {
                             duration: 0.5, 
                             ease: 'power1.inOut',
                             onStart: () => {
-                                isTransitioning = true; // Ensure isTransitioning is true during GSAP animation
+                                isTransitioning = true; 
                                 carouselClickable = false;
                             },
                             onComplete: () => {
-                                // It's crucial that isTransitioning is true before scrollend potentially fires
-                                // and that it's reliably set to false here.
+                                carousel.style.scrollSnapType = originalSnapType; // Restore original scroll-snap
                                 isTransitioning = false; 
                                 carouselClickable = true;
-                                // updateActiveCardOnScroll(); // Call after GSAP scroll to ensure state
+                                // updateActiveCardOnScroll(); // Rely on scrollend for this for now
                             }
                         });
                     } else {
                         carousel.scrollLeft = newScrollLeft;
-                        // If no GSAP, rely on the native scrollend event to reset flags & update active card.
-                        // However, for manual scrollLeft changes, scrollend might not fire consistently.
-                        // For safety, and if no GSAP, consider a small timeout to reset and update.
+                        carousel.style.scrollSnapType = originalSnapType; // Restore original scroll-snap
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
                             updateActiveCardOnScroll();
-                        }, 50); // Adjust delay if needed, matches scrollend delay
+                        }, 50); 
                     }
                 } else if (isSafari() && scrollBehavior === 'auto') { // Manual for Safari auto scroll
                     const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
