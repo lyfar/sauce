@@ -76,7 +76,7 @@ export function initTeamCarousel() {
                 return;
             }
             carouselClickable = false;
-            isTransitioning = true;
+            isTransitioning = true; 
         } 
 
         if (event) {
@@ -88,7 +88,7 @@ export function initTeamCarousel() {
         const targetCard = teamCards[index];
         if (!targetCard) {
             console.error('Target card not found at index:', index);
-            if (!isScrollEventUpdate) {
+            if (!isScrollEventUpdate) { 
                 isTransitioning = false;
                 carouselClickable = true;
             }
@@ -96,23 +96,31 @@ export function initTeamCarousel() {
         }
         targetCard.classList.add('active');
         
-        if (!isScrollEventUpdate || isInitialSet) { 
+        if (currentIndex !== index) {
             currentIndex = index;
-        } else { 
-            if (currentIndex !== index) currentIndex = index;
         }
 
-        if (shouldScroll) { 
-            // Wait for next animation frame to ensure card is fully rendered
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    targetCard.scrollIntoView({ behavior: isInitialSet ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
-                    isTransitioning = false;
-                    carouselClickable = true;
-                }, 0);
+        if (shouldScroll) {
+            const scrollBehavior = isInitialSet ? 'auto' : 'smooth';
+
+            // We no longer disable scroll-snap-type here.
+            // Rely on requestAnimationFrame to ensure layout is updated before scrolling.
+            requestAnimationFrame(() => { 
+                targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
+
+                if (scrollBehavior === 'auto') {
+                    // For 'auto' scrolls, reset flags after a minimal delay to ensure scroll processes.
+                    setTimeout(() => {
+                        isTransitioning = false;
+                        carouselClickable = true;
+                    }, 0);
+                }
+                // For 'smooth' scrolls, 'scrollend' event listener handles flag resets.
             });
-        } else { 
-            if (!isScrollEventUpdate || isInitialSet) { 
+        } else {
+            // Not programmatically scrolling (e.g., update from scroll event or initial set without scroll).
+            // Reset flags if this was a click that didn't scroll, or an initial set without scroll.
+            if ((!isScrollEventUpdate || isInitialSet) && isTransitioning) {
                 isTransitioning = false;
                 carouselClickable = true;
             }
@@ -121,15 +129,9 @@ export function initTeamCarousel() {
 
     // Listen for scrollend to finalize state after scrolling (programmatic or user)
     carousel.addEventListener('scrollend', () => {
-        // console.log(`Scrollend event fired. Current scrollLeft: ${carousel.scrollLeft}`);
+        // console.log(\`Scrollend event fired. Current scrollLeft: \${carousel.scrollLeft}\`);
         
-        // Delay re-enabling scroll-snap slightly
-        setTimeout(() => {
-            if (carousel && carousel.style.scrollSnapType === 'none') {
-                carousel.style.scrollSnapType = 'x mandatory';
-                // console.log("Scrollend (delayed): Snap type re-enabled.");
-            }
-        }, 50); // Small delay, e.g., 50ms. Adjust if needed.
+        // No longer managing scroll-snap-type here as it's not disabled by setActiveCard.
 
         isTransitioning = false;
         carouselClickable = true;
