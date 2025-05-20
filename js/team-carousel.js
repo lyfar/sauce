@@ -118,10 +118,6 @@ export function initTeamCarousel() {
 
                     newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
 
-                    // Temporarily disable scroll-snap for GSAP animation on Safari
-                    const originalSnapType = carousel.style.scrollSnapType;
-                    carousel.style.scrollSnapType = 'none';
-
                     if (typeof gsap !== 'undefined') {
                         gsap.to(carousel, { 
                             scrollLeft: newScrollLeft, 
@@ -132,15 +128,13 @@ export function initTeamCarousel() {
                                 carouselClickable = false;
                             },
                             onComplete: () => {
-                                carousel.style.scrollSnapType = originalSnapType; // Restore original scroll-snap
                                 isTransitioning = false; 
                                 carouselClickable = true;
-                                // updateActiveCardOnScroll(); // Rely on scrollend for this for now
+                                // updateActiveCardOnScroll(); // Still relying on scrollend
                             }
                         });
                     } else {
                         carousel.scrollLeft = newScrollLeft;
-                        carousel.style.scrollSnapType = originalSnapType; // Restore original scroll-snap
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
