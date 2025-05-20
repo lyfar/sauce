@@ -23,7 +23,6 @@ export function initTeamCarousel() {
     let originalCardsCount = teamCards.length; // Store the original count before cloning
     let isJumpingToReal = false; // Flag to prevent scroll events during a jump to original card
     let isAutoScrolling = false; // Flag to track if auto-scrolling is in progress
-    let ignoreScrollEvents = true; // Initially ignore scroll events during setup
 
     // Find the "Bomber" card
     teamCards.forEach((card, index) => {
@@ -77,29 +76,15 @@ export function initTeamCarousel() {
             }
         });
         
-        // Save current scroll position
-        const scrollY = window.scrollY || window.pageYOffset;
-        
-        // Initial scroll position to center on first real card - WITHOUT affecting page scroll
-        carousel.scrollLeft = getScrollLeftForIndex(originalCardsCount);
-        
-        // Restore original scroll position if changed
+        // Initial scroll position to center on first real card
         setTimeout(() => {
-            window.scrollTo(0, 0); // Always force page to top after setup
-            ignoreScrollEvents = false;
-        }, 100);
+            const firstRealCard = document.querySelectorAll('.team-card')[originalCardsCount];
+            if (firstRealCard) {
+                firstRealCard.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+            }
+        }, 10);
         
         return updatedCards;
-    }
-    
-    // Helper to calculate scrollLeft for a card index without using scrollIntoView
-    function getScrollLeftForIndex(index) {
-        if (!allTeamCards[index]) return 0;
-        
-        const targetCard = allTeamCards[index];
-        const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
-        const carouselCenter = carousel.offsetWidth / 2;
-        return targetCardCenter - carouselCenter;
     }
     
     // Actual card elements may change after infinite scroll setup
@@ -280,9 +265,6 @@ export function initTeamCarousel() {
             const scrollBehavior = isInitialSet ? 'auto' : 'smooth';
             isAutoScrolling = true;
 
-            // Save document scroll position
-            const scrollY = window.scrollY || window.pageYOffset;
-
             requestAnimationFrame(() => { 
                 if (isSafari() && scrollBehavior === 'smooth') {
                     const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
@@ -305,10 +287,6 @@ export function initTeamCarousel() {
                                 carouselClickable = true;
                                 isAutoScrolling = false;
                                 checkAndLoopCarousel();
-                                // After any scrolling, restore the original scroll position
-                                setTimeout(() => {
-                                    window.scrollTo(0, scrollY);
-                                }, 50);
                             }
                         });
                     } else {
@@ -318,67 +296,31 @@ export function initTeamCarousel() {
                             carouselClickable = true;
                             isAutoScrolling = false;
                             updateActiveCardOnScroll();
-                            // After any scrolling, restore the original scroll position
-                            setTimeout(() => {
-                                window.scrollTo(0, scrollY);
-                            }, 50);
                         }, 50); 
                     }
                 } else if (isSafari() && scrollBehavior === 'auto') { 
                     const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
                     const carouselCenter = carousel.offsetWidth / 2;
                     carousel.scrollLeft = Math.max(0, Math.min(targetCardCenter - carouselCenter, carousel.scrollWidth - carousel.offsetWidth));
-                    
-                    // Restore original scroll position
-                    window.scrollTo(0, scrollY);
-                    
                     setTimeout(() => { 
                         isTransitioning = false;
                         carouselClickable = true;
                         isAutoScrolling = false;
                     }, 0);
                 } else { 
-                    // Use scrollLeft instead of scrollIntoView to prevent affecting page scroll
-                    if (isInitialSet) {
-                        carousel.scrollLeft = getScrollLeftForIndex(index);
-                        window.scrollTo(0, scrollY);
-                        
+                    targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
+                    if (scrollBehavior === 'auto') {
                         setTimeout(() => {
                             isTransitioning = false;
                             carouselClickable = true;
                             isAutoScrolling = false;
                         }, 0);
                     } else {
-                        // For non-initial scrolls, use GSAP for smooth scrolling
-                        if (typeof gsap !== 'undefined') {
-                            gsap.to(carousel, {
-                                scrollLeft: getScrollLeftForIndex(index),
-                                duration: 0.5,
-                                ease: 'power1.inOut',
-                                onComplete: () => {
-                                    isTransitioning = false;
-                                    carouselClickable = true;
-                                    isAutoScrolling = false;
-                                    window.scrollTo(0, scrollY);
-                                }
-                            });
-                        } else {
-                            // Fallback to scrollIntoView with block: 'nearest' to minimize page scroll
-                            targetCard.scrollIntoView({ behavior: scrollBehavior, inline: 'center', block: 'nearest' });
-                            window.scrollTo(0, scrollY);
-                            
-                            if (scrollBehavior === 'auto') {
-                                setTimeout(() => {
-                                    isTransitioning = false;
-                                    carouselClickable = true;
-                                    isAutoScrolling = false;
-                                }, 0);
-                            } else {
-                                setTimeout(() => {
-                                    isAutoScrolling = false;
-                                }, 600);
-                            }
-                        }
+                        // For smooth scrolls, scrollend event will handle flag reset
+                        // But still need to reset isAutoScrolling after a reasonable time
+                        setTimeout(() => {
+                            isAutoScrolling = false;
+                        }, 600); // Slightly longer than GSAP duration to ensure completion
                     }
                 }
             });
@@ -402,8 +344,6 @@ export function initTeamCarousel() {
     // Debounce this to avoid performance issues
     let scrollTimer;
     carousel.addEventListener('scroll', function() {
-        if (ignoreScrollEvents) return;
-        
         if (!isTransitioning && !isJumpingToReal && !isAutoScrolling) { 
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -463,11 +403,13 @@ export function initTeamCarousel() {
         entries.forEach(entry => {
             if (entry.isIntersecting && entry.intersectionRatio > 0.8 && !initialCenteringDone) {
                 if (currentIndex !== -1 && allTeamCards[currentIndex]) {
-                    // Only set carousel scrollLeft, do NOT use scrollIntoView
-                    carousel.scrollLeft = getScrollLeftForIndex(currentIndex);
-                    window.scrollTo(0, 0); // Always force page to top
-                    initialCenteringDone = true;
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            allTeamCards[currentIndex].scrollIntoView({behavior: 'auto', inline: 'center', block: 'nearest'});
+                        }, 0);
+                    });
                 }
+                initialCenteringDone = true;
             }
         });
     };
