@@ -55,7 +55,7 @@
 
 .team-card {
   margin: 0; /* Adjusted due to gap on carousel and spacers */
-  width: min(24vw, 320px); /* Desktop: show more cards at once */
+  width: min(22vw, 300px); /* Desktop: slightly smaller to fit more */
   aspect-ratio: 9 / 16; /* Maintain 9:16 ratio */
   height: auto;
   display: flex;
@@ -270,10 +270,10 @@
   }
   
   .team-card {
-    width: min(30vw, 360px);
+    width: min(28vw, 320px);
     margin: 0; /* Was 0 10px 30px; spacers and gap handle spacing */
     --content-scale: 0.66;
-    --desc-max-height: 260px;
+    --desc-max-height: 240px;
   }
   
   .team-card.active {}
@@ -326,7 +326,7 @@
   
   .team-card {
     margin: 0; 
-    width: min(84vw, 360px); /* Mobile: one centered card with edges peeking */
+    width: min(78vw, 300px); /* Mobile: slightly smaller */
     height: auto; 
     flex: 0 0 auto;
     -webkit-transform: translateZ(0);
@@ -334,7 +334,7 @@
     transition: opacity 0.4s ease-in-out, box-shadow 0.4s ease-in-out, transform 0.4s ease-in-out, margin 0s;
     overflow: hidden;
     --content-scale: 0.42;
-    --desc-max-height: 260px;
+    --desc-max-height: 220px;
     /* Removed scroll-snap properties for precise centering control */
   }
   
