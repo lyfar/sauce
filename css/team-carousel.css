@@ -56,7 +56,7 @@
 .team-card {
   margin: 0; /* Adjusted due to gap on carousel and spacers */
   aspect-ratio: 9 / 16; /* Maintain 9:16 ratio */
-  height: 540px; /* Increased height to show more text */
+  height: 680px; /* Larger to show more text */
   display: flex;
   align-items: flex-end;
   background-color: #000;
@@ -82,7 +82,7 @@
   opacity: 0.6; /* Dim non-active cards */
   /* Scale factor used to reduce text reflow when card shrinks */
   --content-scale: 0.62;
-  --desc-max-height: 220px; /* Default paragraph max height */
+  --desc-max-height: 320px; /* Larger visible bio area on desktop */
 }
 
 /* Removed image fade overlay for natural transitions */
@@ -197,10 +197,10 @@
   }
   
   .team-card {
-    height: 520px; /* Increased height */
+    height: 600px; /* Larger to show more text */
     margin: 0; /* Was 0 10px 30px; spacers and gap handle spacing */
     --content-scale: 0.66;
-    --desc-max-height: 220px;
+    --desc-max-height: 280px;
   }
   
   .team-card.active {}
@@ -240,14 +240,14 @@
   
   .team-card {
     margin: 0; 
-    height: 440px; 
+    height: 520px; 
     flex: 0 0 auto;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     transition: opacity 0.4s ease-in-out, box-shadow 0.4s ease-in-out, transform 0.4s ease-in-out, margin 0s;
     overflow: hidden;
     --content-scale: 0.42;
-    --desc-max-height: 260px;
+    --desc-max-height: 320px;
   }
   
   .team-card.active {}
