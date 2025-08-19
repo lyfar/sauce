@@ -2,7 +2,7 @@
 .team-section {
   padding: 60px 0;
   position: relative;
-  overflow: visible; /* Allow neighboring cards to peek */
+  overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
   touch-action: pan-x;
@@ -28,13 +28,12 @@
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   will-change: transform, scroll-position;
-  /* Removed snap to allow natural free scrolling */
+  scroll-snap-type: x mandatory;
   /* REMOVE padding-left and padding-right that used vw units */
   /* padding-left: calc(50vw - 225px - 15px); */
   /* padding-right: calc(50vw - 225px - 15px); */
   box-sizing: border-box; 
-  gap: 16px; /* Tighter gap so neighbor edges are visible */
-  cursor: grab;
+  gap: 30px; /* Default gap for desktop */
 }
 
 .carousel-spacer-start,
@@ -55,9 +54,8 @@
 
 .team-card {
   margin: 0; /* Adjusted due to gap on carousel and spacers */
-  width: min(22vw, 300px); /* Desktop: slightly smaller to fit more */
-  aspect-ratio: 9 / 16; /* Maintain 9:16 ratio */
-  height: auto;
+  width: 280px;
+  height: 540px; /* Increased height to show more text */
   display: flex;
   align-items: flex-end;
   background-color: #000;
@@ -67,32 +65,32 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  transition: opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.35s cubic-bezier(0.33, 1, 0.68, 1), transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1); /* 'all' should cover opacity */
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  /* Removed snap alignment for natural scroll */
+  scroll-snap-align: center; /* Applied generally */
+  scroll-snap-stop: always; /* Added for consistency */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   /* touch-action: none; */ /* Removed as it might interfere with clicks on Safari iOS */
   /* Enhance transitions for smoothness */
-  will-change: transform, opacity; /* Avoid width to reduce layout thrash */
+  will-change: width, transform, opacity; /* Added opacity to will-change */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   opacity: 0.6; /* Dim non-active cards */
   /* Scale factor used to reduce text reflow when card shrinks */
   --content-scale: 0.62;
-  --desc-max-height: 300px; /* Visible bio area tuned for responsive width */
+  --desc-max-height: 220px; /* Default paragraph max height */
 }
-
-/* Removed image fade overlay for natural transitions */
 
 .team-card:focus {
   outline: none;
 }
 
 .team-card.active {
+  width: 450px;
   box-shadow: 12px 40px 40px rgba(0, 0, 0, 0.25);
   opacity: 1; /* Active card full opacity */
 }
@@ -148,8 +146,8 @@
 }
 
 .team-card-desc p {
-  opacity: 1; /* Always visible to avoid blinking */
-  transition: none;
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out, max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   margin: 0;
   font-size: 14px;
   line-height: 1.6;
@@ -161,7 +159,8 @@
   will-change: opacity;
 }
 
-/* Paragraph remains interactive at all times */
+/* Collapsed state: just invisible, no movement */
+.team-card:not(.active) .team-card-desc p { pointer-events: none; max-height: 0; }
 
 .team-card-desc p::-webkit-scrollbar {
   width: 6px;
@@ -175,83 +174,14 @@
   border-radius: 3px;
 }
 
-/* Active state no longer controls text visibility */
+.team-card.active .team-card-desc p {
+  opacity: 1;
+  transition-delay: 0.35s; /* Wait for card width transition to finish */
+}
 
-/* Navigation arrows */
+/* Hide navigation buttons as requested */
 .team-nav-buttons {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 20;
-}
-
-.team-prev-btn,
-.team-next-btn {
-  pointer-events: auto;
-  position: absolute;
-  width: 44px;
-  height: 44px;
-  border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.45);
-  color: #00ffff;
-  border: 1px solid rgba(0, 255, 255, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.8;
-  transition: opacity 0.2s ease;
-  top: 50%;
-  transform: translateY(-50%);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-}
-
-.team-prev-btn { left: 12px; }
-.team-next-btn { right: 12px; }
-
-@media (min-width: 768px) {
-  .team-prev-btn,
-  .team-next-btn {
-    opacity: 0.55;
-  }
-  .team-prev-btn:hover,
-  .team-next-btn:hover {
-    opacity: 0.85;
-  }
-}
-
-@media (max-width: 767px) {
-  /* Make arrows overlay viewport to avoid parent width constraints */
-  .team-nav-buttons {
-    position: fixed;
-    top: 50%;
-    left: 0;
-    right: 0;
-    width: 100vw;
-    transform: translateY(-50%);
-    z-index: 1000;
-    pointer-events: none; /* Allow clicks through container */
-  }
-  
-  .team-prev-btn,
-  .team-next-btn {
-    pointer-events: auto; /* Re-enable clicks on buttons */
-    position: fixed; /* Fix to viewport, not relative to container */
-  }
-  
-  .team-prev-btn { 
-    left: 10px; 
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
-  .team-next-btn { 
-    right: 10px; 
-    top: 50%;
-    transform: translateY(-50%);
-  }
+  display: none;
 }
 
 /* Responsive Styles */
@@ -261,7 +191,7 @@
   }
   
   .team-carousel {
-    gap: 14px; /* Gap for tablet */
+    gap: 20px; /* Gap for tablet */
   }
 
   .carousel-spacer-start,
@@ -270,13 +200,16 @@
   }
   
   .team-card {
-    width: min(28vw, 320px);
+    width: 250px;
+    height: 520px; /* Increased height */
     margin: 0; /* Was 0 10px 30px; spacers and gap handle spacing */
     --content-scale: 0.66;
-    --desc-max-height: 240px;
+    --desc-max-height: 220px;
   }
   
-  .team-card.active {}
+  .team-card.active {
+    width: 380px;
+  }
 
   .team-card-desc {
     /* height: 220px; */ /* REMOVED */
@@ -288,20 +221,10 @@
 }
 
 @media (max-width: 767px) {
-  /* Remove arrows entirely on mobile */
-  .team-nav-buttons,
-  .team-prev-btn,
-  .team-next-btn {
-    display: none !important;
-  }
-
   .team-section {
     padding: 20px 0;
     width: 100%;
     -webkit-overflow-scrolling: touch;
-    /* Ensure fixed-position arrows are relative to the viewport */
-    -webkit-transform: none;
-    transform: none;
   }
   
   .team-carousel {
@@ -311,34 +234,32 @@
     overflow-x: scroll; 
     -webkit-overflow-scrolling: touch;
     gap: 10px; /* Gap for mobile */
-    scroll-snap-type: none; /* Disable snap for precise centering */
     box-sizing: border-box; 
-    /* Ensure fixed-position arrows are not captured by a transformed ancestor */
-    -webkit-transform: none;
-    transform: none;
   }
   
   .carousel-spacer-start,
   .carousel-spacer-end {
-    /* Mobile: Generous spacers to ensure any card can be centered */
-    width: 50vw; /* Half viewport width ensures centering capability */
+    /* Mobile: Regular card width is 110px. Active card is 260px. Gap is 10px. */
+    /* Base spacer on active card width to ensure it can be centered by scrollIntoView when active. */
+    width: calc(50vw - (260px / 2) - (10px / 2)); /* Uses 260px active card width */
   }
   
   .team-card {
     margin: 0; 
-    width: min(78vw, 300px); /* Mobile: slightly smaller */
-    height: auto; 
+    width: 110px; 
+    height: 440px; 
     flex: 0 0 auto;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
-    transition: opacity 0.4s ease-in-out, box-shadow 0.4s ease-in-out, transform 0.4s ease-in-out, margin 0s;
+    transition: all 0.4s ease-in-out, margin 0s;
     overflow: hidden;
     --content-scale: 0.42;
-    --desc-max-height: 220px;
-    /* Removed scroll-snap properties for precise centering control */
+    --desc-max-height: 260px;
   }
   
-  .team-card.active {}
+  .team-card.active {
+    width: 260px; 
+  }
   
   .team-card-desc {
     padding: 0 12px 10px;

@@ -103,10 +103,10 @@ a:focus-visible {
 }
 
 main {
-	padding: 0; /* Full-bleed layout */
+	padding: var(--page-padding);
 	position: relative;
 	height: 100%;
-	overflow: visible; /* Allow child sections to overflow */
+	overflow: hidden;
 }
 
 .frame {
