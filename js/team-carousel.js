@@ -26,7 +26,24 @@ export function initTeamCarousel() {
         return nameElement && nameElement.textContent.toLowerCase().includes('bomber');
     });
 
-    // No need to compute most-centered; we allow free scroll
+    // Find the most centered card relative to the carousel viewport
+    function getMostCenteredIndex() {
+        const carouselRect = carousel.getBoundingClientRect();
+        const carouselCenterX = carouselRect.left + carouselRect.width / 2;
+        let mostCenteredCardIndex = -1;
+        let smallestDistanceToCenter = Infinity;
+
+        allTeamCards.forEach((card, index) => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenterX = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(carouselCenterX - cardCenterX);
+            if (distance < smallestDistanceToCenter) {
+                smallestDistanceToCenter = distance;
+                mostCenteredCardIndex = index;
+            }
+        });
+        return mostCenteredCardIndex;
+    }
 
     function scrollCardIntoCenter(targetCard, behavior = 'smooth') {
         const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
@@ -109,7 +126,17 @@ export function initTeamCarousel() {
     carousel.addEventListener('pointerup', endDrag);
     carousel.addEventListener('pointercancel', endDrag);
 
-    // Free scroll: no snapping; update active on click only
+    // Free scroll: update active based on centered card
+    let scrollTimer;
+    carousel.addEventListener('scroll', function() {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+            const centered = getMostCenteredIndex();
+            if (centered !== -1 && centered !== currentIndex) {
+                setActiveCard(centered, null, false, true, false);
+            }
+        }, 80);
+    });
 
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
