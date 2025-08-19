@@ -16,6 +16,25 @@ export function initTeamCarousel() {
     }
 
     const allTeamCards = Array.from(teamCardsNodeList);
+    const spacerStart = carousel.querySelector('.carousel-spacer-start');
+    const spacerEnd = carousel.querySelector('.carousel-spacer-end');
+
+    function updateSpacers() {
+        if (!spacerStart || !spacerEnd) return;
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        if (isMobile) {
+            // Use CSS spacer width: 50vw for guaranteed centering
+            const spacerWidth = window.innerWidth / 2; // 50vw
+            spacerStart.style.width = spacerWidth + 'px';
+            spacerEnd.style.width = spacerWidth + 'px';
+            spacerStart.style.flexShrink = '0';
+            spacerEnd.style.flexShrink = '0';
+        } else {
+            // On desktop, reset to CSS defaults
+            spacerStart.style.width = '';
+            spacerEnd.style.width = '';
+        }
+    }
     let currentIndex = 0;
     let isTransitioning = false;
     let isAutoScrolling = false;
@@ -46,22 +65,43 @@ export function initTeamCarousel() {
     }
 
     function scrollCardIntoCenter(targetCard, behavior = 'smooth') {
-        const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
-        const carouselCenter = carousel.offsetWidth / 2;
-        let newScrollLeft = targetCardCenter - carouselCenter;
-        newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
-        if (behavior === 'smooth') {
-            carousel.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
+        updateSpacers();
+        
+        // Force immediate center positioning
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        
+        if (isMobile) {
+            // On mobile, use scrollIntoView with center alignment for precise centering
+            targetCard.scrollIntoView({ 
+                behavior: behavior === 'smooth' ? 'smooth' : 'auto',
+                block: 'nearest',
+                inline: 'center'
+            });
         } else {
-            carousel.scrollLeft = newScrollLeft;
-        }
-        // Align after scroll settles to ensure centered on mobile snap
-        setTimeout(() => {
-            const centerIdx = getMostCenteredIndex();
-            if (centerIdx !== -1 && centerIdx !== currentIndex) {
-                setActiveCard(centerIdx, null, false, true, false);
+            // Desktop: manual calculation
+            const targetCardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+            const carouselCenter = carousel.offsetWidth / 2;
+            let newScrollLeft = targetCardCenter - carouselCenter;
+            newScrollLeft = Math.max(0, Math.min(newScrollLeft, carousel.scrollWidth - carousel.offsetWidth));
+            
+            if (behavior === 'smooth') {
+                carousel.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
+            } else {
+                carousel.scrollLeft = newScrollLeft;
             }
-        }, 200);
+        }
+        
+        // Double-check centering after scroll completes
+        setTimeout(() => {
+            if (isMobile) {
+                // Force another center scroll if needed
+                targetCard.scrollIntoView({ 
+                    behavior: 'auto',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }, 300);
     }
 
     function setActiveCard(index, event, shouldScroll = false, isScrollEventUpdate = false, isInitialSet = false) {
@@ -144,12 +184,15 @@ export function initTeamCarousel() {
         carousel.onpointercancel = endDrag;
     };
     enableDesktopDrag();
+    updateSpacers();
     window.addEventListener('resize', enableDesktopDrag);
+    window.addEventListener('resize', updateSpacers);
 
     // Arrows
     const prevBtn = document.querySelector('.team-prev-btn');
     const nextBtn = document.querySelector('.team-next-btn');
-    if (prevBtn && nextBtn) {
+    const isMobileForArrows = window.matchMedia('(max-width: 767px)').matches;
+    if (!isMobileForArrows && prevBtn && nextBtn) {
         const goPrev = () => {
             const idx = Math.max(0, currentIndex - 1);
             const card = allTeamCards[idx];
@@ -166,7 +209,7 @@ export function initTeamCarousel() {
         };
         prevBtn.addEventListener('click', goPrev);
         nextBtn.addEventListener('click', goNext);
-        // Force visible on mobile
+        // Ensure visible on desktop
         prevBtn.style.display = '';
         nextBtn.style.display = '';
         // If using text-only arrows, ensure symbols
@@ -208,6 +251,7 @@ export function initTeamCarousel() {
     setActiveCard(initialIndex, null, false, false, true);
     // Center after initial paint
     requestAnimationFrame(() => {
+        updateSpacers();
         const target = allTeamCards[initialIndex];
         if (target) scrollCardIntoCenter(target, 'auto');
     });
