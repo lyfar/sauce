@@ -28,12 +28,13 @@
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   will-change: transform, scroll-position;
-  scroll-snap-type: x mandatory;
+  /* Removed snap to allow natural free scrolling */
   /* REMOVE padding-left and padding-right that used vw units */
   /* padding-left: calc(50vw - 225px - 15px); */
   /* padding-right: calc(50vw - 225px - 15px); */
   box-sizing: border-box; 
   gap: 30px; /* Default gap for desktop */
+  cursor: grab;
 }
 
 .carousel-spacer-start,
@@ -54,8 +55,8 @@
 
 .team-card {
   margin: 0; /* Adjusted due to gap on carousel and spacers */
-  width: 280px;
-  height: 450px; /* Increased default height slightly for more text */
+  aspect-ratio: 9 / 16; /* Maintain 9:16 ratio */
+  height: 540px; /* Increased height to show more text */
   display: flex;
   align-items: flex-end;
   background-color: #000;
@@ -65,29 +66,32 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1); /* 'all' should cover opacity */
+  transition: opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.35s cubic-bezier(0.33, 1, 0.68, 1), transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  scroll-snap-align: center; /* Applied generally */
-  scroll-snap-stop: always; /* Added for consistency */
+  /* Removed snap alignment for natural scroll */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   /* touch-action: none; */ /* Removed as it might interfere with clicks on Safari iOS */
   /* Enhance transitions for smoothness */
-  will-change: width, transform, opacity; /* Added opacity to will-change */
+  will-change: transform, opacity; /* Avoid width to reduce layout thrash */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   opacity: 0.6; /* Dim non-active cards */
+  /* Scale factor used to reduce text reflow when card shrinks */
+  --content-scale: 0.62;
+  --desc-max-height: 220px; /* Default paragraph max height */
 }
+
+/* Removed image fade overlay for natural transitions */
 
 .team-card:focus {
   outline: none;
 }
 
 .team-card.active {
-  width: 450px;
   box-shadow: 12px 40px 40px rgba(0, 0, 0, 0.25);
   opacity: 1; /* Active card full opacity */
 }
@@ -106,20 +110,26 @@
 .team-card-desc {
   padding: 0 24px 12px;
   color: #fff;
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
   overflow: hidden; /* Crucial for h3 ellipsis when collapsed, and for desc itself if it grows too tall before p scrolls */
-  transform: translateY(calc(100% - 54px)); /* h3 area height */
+  /* Keep container pinned to bottom; only body (p) collapses/expands */
   transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   width: 100%;
   box-sizing: border-box;
   word-wrap: break-word;
   /* height: 200px; */ /* REMOVED fixed height */
   /* max-height: 70%; */ /* Optional: prevent desc from becoming excessively tall overall */
+  contain: layout paint; /* Isolate layout to reduce reflow during scale */
+  display: flex;
+  flex-direction: column-reverse; /* Keep title at the bottom; body above */
+  gap: 8px;
 }
 
 .team-card.active .team-card-desc {
-  transform: none;
   overflow: visible; /* Allow p's scrollbar to be visible if it's at the edge */
 }
 
@@ -133,21 +143,24 @@
   overflow: hidden; 
   text-overflow: ellipsis;
   height: 36px; 
+  /* Keep title static to avoid jumping */
 }
 
 .team-card-desc p {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: all 0.4s ease-in-out 0.2s;
+  opacity: 1; /* Always visible to avoid blinking */
+  transition: none;
   margin: 0;
   font-size: 14px;
   line-height: 1.6;
   /* height: calc(200px - 36px - 12px - 8px); */ /* REMOVED calculated height */
-  max-height: 150px; /* Define a max-height for the paragraph, e.g. ~7-8 lines */
+  max-height: var(--desc-max-height); /* Increased to show more text on desktop */
   overflow-y: auto; 
   scrollbar-width: thin; 
   scrollbar-color: #00ffff #00000040; 
+  will-change: opacity;
 }
+
+/* Paragraph remains interactive at all times */
 
 .team-card-desc p::-webkit-scrollbar {
   width: 6px;
@@ -161,10 +174,7 @@
   border-radius: 3px;
 }
 
-.team-card.active .team-card-desc p {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* Active state no longer controls text visibility */
 
 /* Hide navigation buttons as requested */
 .team-nav-buttons {
@@ -187,21 +197,20 @@
   }
   
   .team-card {
-    width: 250px;
-    height: 480px; /* Adjusted height */
+    height: 520px; /* Increased height */
     margin: 0; /* Was 0 10px 30px; spacers and gap handle spacing */
+    --content-scale: 0.66;
+    --desc-max-height: 220px;
   }
   
-  .team-card.active {
-    width: 380px;
-  }
+  .team-card.active {}
 
   .team-card-desc {
     /* height: 220px; */ /* REMOVED */
   }
   .team-card-desc p {
     /* height: calc(220px - 36px - 12px - 8px); */ /* REMOVED */
-    max-height: 180px; /* Adjusted for tablet */
+    max-height: var(--desc-max-height); /* Increased for tablet */
   }
 }
 
@@ -231,22 +240,20 @@
   
   .team-card {
     margin: 0; 
-    width: 110px; 
-    height: 400px; 
+    height: 440px; 
     flex: 0 0 auto;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
-    transition: all 0.4s ease-in-out, margin 0s;
+    transition: opacity 0.4s ease-in-out, box-shadow 0.4s ease-in-out, transform 0.4s ease-in-out, margin 0s;
     overflow: hidden;
+    --content-scale: 0.42;
+    --desc-max-height: 260px;
   }
   
-  .team-card.active {
-    width: 260px; 
-  }
+  .team-card.active {}
   
   .team-card-desc {
     padding: 0 12px 10px;
-    transform: translateY(calc(100% - 50px)); /* h3 area for mobile */
     /* height: 300px; */ /* REMOVED */
   }
   
@@ -264,7 +271,7 @@
   .team-card-desc p {
     font-size: 13px;
     /* height: calc(300px - 28px - 10px - 6px); */ /* REMOVED */
-    max-height: 220px; /* Generous max-height for mobile paragraph */
+    max-height: var(--desc-max-height); /* Increased for mobile */
     overflow-y: auto;
   }
 }
@@ -291,4 +298,7 @@
     /* scroll-snap-align: center; */ /* Already applied globally */
     /* scroll-snap-stop: always; */ /* Already applied globally */
   }
+  /* No scaling for title on Safari */
 } 
+
+/* No scaling for title on other browsers */
