@@ -36,9 +36,9 @@
 .content {
     position: relative;
     z-index: 1;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 2rem;
+    max-width: none; /* Allow full-bleed content where needed */
+    margin: 0; /* Remove auto-centering */
+    padding: 0; /* Remove side paddings */
 }
 
 .content:first-of-type {

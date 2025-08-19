@@ -55,6 +55,13 @@ export function initTeamCarousel() {
         } else {
             carousel.scrollLeft = newScrollLeft;
         }
+        // Align after scroll settles to ensure centered on mobile snap
+        setTimeout(() => {
+            const centerIdx = getMostCenteredIndex();
+            if (centerIdx !== -1 && centerIdx !== currentIndex) {
+                setActiveCard(centerIdx, null, false, true, false);
+            }
+        }, 200);
     }
 
     function setActiveCard(index, event, shouldScroll = false, isScrollEventUpdate = false, isInitialSet = false) {
@@ -103,28 +110,69 @@ export function initTeamCarousel() {
         }
     });
 
-    // Drag-to-scroll for desktop
+    // Drag-to-scroll only on desktop
     let isPointerDown = false;
     let startX = 0;
     let startScrollLeft = 0;
-    carousel.addEventListener('pointerdown', (e) => {
-        isPointerDown = true;
-        carousel.setPointerCapture(e.pointerId);
-        startX = e.clientX;
-        startScrollLeft = carousel.scrollLeft;
-        carousel.style.cursor = 'grabbing';
-    });
-    carousel.addEventListener('pointermove', (e) => {
-        if (!isPointerDown) return;
-        const dx = e.clientX - startX;
-        carousel.scrollLeft = startScrollLeft - dx;
-    });
-    const endDrag = () => {
-        isPointerDown = false;
-        carousel.style.cursor = '';
+    const enableDesktopDrag = () => {
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        if (isMobile) {
+            carousel.style.cursor = '';
+            carousel.onpointerdown = null;
+            carousel.onpointermove = null;
+            carousel.onpointerup = null;
+            carousel.onpointercancel = null;
+            return;
+        }
+        carousel.onpointerdown = (e) => {
+            isPointerDown = true;
+            carousel.setPointerCapture(e.pointerId);
+            startX = e.clientX;
+            startScrollLeft = carousel.scrollLeft;
+            carousel.style.cursor = 'grabbing';
+        };
+        carousel.onpointermove = (e) => {
+            if (!isPointerDown) return;
+            const dx = e.clientX - startX;
+            carousel.scrollLeft = startScrollLeft - dx;
+        };
+        const endDrag = () => {
+            isPointerDown = false;
+            carousel.style.cursor = '';
+        };
+        carousel.onpointerup = endDrag;
+        carousel.onpointercancel = endDrag;
     };
-    carousel.addEventListener('pointerup', endDrag);
-    carousel.addEventListener('pointercancel', endDrag);
+    enableDesktopDrag();
+    window.addEventListener('resize', enableDesktopDrag);
+
+    // Arrows
+    const prevBtn = document.querySelector('.team-prev-btn');
+    const nextBtn = document.querySelector('.team-next-btn');
+    if (prevBtn && nextBtn) {
+        const goPrev = () => {
+            const idx = Math.max(0, currentIndex - 1);
+            const card = allTeamCards[idx];
+            if (card) {
+                setActiveCard(idx, null, true, false, false);
+            }
+        };
+        const goNext = () => {
+            const idx = Math.min(allTeamCards.length - 1, currentIndex + 1);
+            const card = allTeamCards[idx];
+            if (card) {
+                setActiveCard(idx, null, true, false, false);
+            }
+        };
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+        // Force visible on mobile
+        prevBtn.style.display = '';
+        nextBtn.style.display = '';
+        // If using text-only arrows, ensure symbols
+        if (!prevBtn.textContent.trim()) prevBtn.textContent = '<';
+        if (!nextBtn.textContent.trim()) nextBtn.textContent = '>';
+    }
 
     // Free scroll: update active based on centered card
     let scrollTimer;
